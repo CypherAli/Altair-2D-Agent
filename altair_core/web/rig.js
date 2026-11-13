@@ -55,10 +55,16 @@
    case 'stretch':p.leftX=78+4*s(t*2);p.leftY=58;p.rightX=222-4*s(t*2);p.rightY=58;p.leftHand=p.rightHand=1;p.headY=-3;p.body=.014*s(t*2);p.expression=1;p.wristL=p.wristR=-.25;break;
    case 'playful':p.leftX=80;p.leftY=214;p.rightX=220;p.rightY=214;p.leftHand=p.rightHand=1;p.head=.075*s(t*4);p.blush=.5;p.body=.012*s(t*4);break;
   }
-  /* Slow weight shift keeps the idle read as "standing" rather than "frozen".
-     The head compensates against the torso sway (a person keeps the horizon
-     steady), so the movement reads as balance instead of a swaying statue. */
-  p.body+=s(t*.7)*.004;p.hip+=s(t*.7)*.9;p.head-=p.body*.55;
+  /* Standing weight: people rest on one leg, hold it, then change sides. A
+     tanh-warped sine holds each side for a few beats instead of gliding.
+     The pelvis travels toward the loaded leg, the ribcage counters slightly,
+     and the head keeps the horizon steady (balance, not a swaying statue). */
+  const shift=Math.tanh(s(t*.16)*2.4);
+  p.body+=shift*.006+s(t*.7)*.002;
+  p.hip+=shift*1.6+s(t*.7)*.35;
+  p.skirt+=shift*.006;
+  p.head-=p.body*.55;
+  p.shift=shift;
   return p;
  }
  if(typeof module==='object'&&module.exports)module.exports={solveArm,zoneAt,poseAt,names};
@@ -78,7 +84,7 @@
    this.world=world;this.root=root;this.canvas=document.createElement('canvas');this.canvas.className='joint-canvas';this.canvas.setAttribute('aria-hidden','true');this.canvas.width=450;this.canvas.height=900;world.querySelector('.character-rig').append(this.canvas);this.ctx=this.canvas.getContext('2d',{alpha:true,willReadFrequently:false});
    this.state='idle';this.since=performance.now();this.last=0;this.lastDraw=0;this.blendStart=0;this.look={x:0,y:0};this.mouth=0;this.disposed=false;this.frames=0;this.lastMask=0;this.blinkAt=performance.now()+3800;this.blinkEnd=0;this.joints={};
    const base=poseAt('idle',0,this.look);
-   this.cur={};for(const key of ['body','hip','head','headY','headX','skirt','scaleY','blush','wristL','wristR'])this.cur[key]=base[key];
+   this.cur={};   for(const key of ['body','hip','head','headY','headX','skirt','scaleY','blush','wristL','wristR','breath','shift'])this.cur[key]=base[key];
    this.hands=[base.leftHand,base.rightHand];this.expression=base.expression;this.hairAngle=base.hair;
    this.arms=[0,1].map(i=>{
     const target=i?[base.rightX,base.rightY]:[base.leftX,base.leftY],sh=SHOULDERS[i];
@@ -111,8 +117,11 @@
      dropped behind it so the tips continue into a long drape: the front lock
      hides the rear copy's thick root, so no seam and no stretching. */
   hairLock(i){
-   const c=this.ctx,p=this.cur,w=126,h=205,base=p.head*.7+this.hair[i].x;
-   const drop=h*.62,head={x:i?194:106,y:100,rot:base,w,h};
+   const c=this.ctx,p=this.cur,w=126,h=205,base=p.head*.55+this.hair[i].x;
+   /* Root rides on the skull: when the head turns, the lock turns with it and
+     the spring only adds lag. At face zoom a loose root would open a gap. */
+   const root=headPoint(p,i?44:-44,-26);
+   const drop=h*.62,head={x:root.x,y:root.y,rot:base,w,h};
    const tail={x:head.x-Math.sin(base)*drop+(i?4:-4),y:head.y+Math.cos(base)*drop,rot:base*1.8,w:w*.94,h:h*.94};
    for(const lock of [tail,head]){
     c.save();c.translate(lock.x,lock.y);c.rotate(lock.rot);
@@ -169,11 +178,13 @@
   step(now,dt,reduced){
    const t=(now-this.since)/1000,target=poseAt(this.state,reduced?0:t,this.look),elapsed=(now-this.blendStart)/1000,from=this.from.pose;
    const p=(group)=>{const g=GROUPS[group];return easeOut(clamp((elapsed-g.delay)/g.dur,0,1));};
-   const body=p('body'),arms=p('arms'),head=p('head'),face=p('face');
+   const body=p('body'),arms=p('arms'),head=p('head'),face=p('face'),bodyK=1-Math.exp(-GROUPS.body.w*dt);
    this.cur.body+=((mix(from.body,target.body,body))-this.cur.body)*(1-Math.exp(-GROUPS.body.w*dt));
    this.cur.hip+=((mix(from.hip,target.hip,body))-this.cur.hip)*(1-Math.exp(-GROUPS.body.w*dt));
    this.cur.skirt+=((mix(from.skirt,target.skirt,body))-this.cur.skirt)*(1-Math.exp(-GROUPS.body.w*dt));
    this.cur.scaleY+=((mix(from.scaleY,target.scaleY*(1+target.breath*.003),body))-this.cur.scaleY)*(1-Math.exp(-GROUPS.body.w*dt));
+   this.cur.breath+=((mix(from.breath,target.breath,body))-this.cur.breath)*bodyK;
+   this.cur.shift+=((mix(from.shift,target.shift,body))-this.cur.shift)*bodyK;
    const headK=1-Math.exp(-GROUPS.head.w*dt);
    this.cur.head+=(mix(from.head,target.head,head)-this.cur.head)*headK;
    this.cur.headY+=(mix(from.headY,target.headY-target.breath*.5,head)-this.cur.headY)*headK;
@@ -208,8 +219,8 @@
    }
    this.stroking*=Math.exp(-dt*3);
   }
-  arm(side){
-   const i=side<0?0:1,arm=this.arms[i],isLeft=side<0,sh=SHOULDERS[i];
+  arm(side,lift=0){
+   const i=side<0?0:1,arm=this.arms[i],isLeft=side<0,sh={x:SHOULDERS[i].x,y:SHOULDERS[i].y+lift};
    const tx=sh.x+Math.cos(arm.ang)*arm.rad,ty=sh.y+Math.sin(arm.ang)*arm.rad;
    const angles=solveArm(tx-sh.x,ty-sh.y,L1,L2,arm.bend),base=isLeft?8:12,c=this.ctx;
    this.joints[isLeft?'left':'right']={shoulder:angles.shoulder,elbow:angles.elbow,wristX:tx,wristY:ty};
@@ -230,8 +241,11 @@
    const c=this.ctx,p=this.cur;c.setTransform(PIXEL,0,0,PIXEL,0,0);c.clearRect(0,0,300,600);c.imageSmoothingEnabled=true;c.imageSmoothingQuality='high';
    c.save();c.translate(BODY_X,BODY_Y);c.rotate(p.body);c.scale(1,p.scaleY);c.translate(-BODY_X,-BODY_Y);
    this.hairLock(0);this.hairLock(1);
-   this.bone(128+p.hip,471,-p.body*.7+Math.sin(now/1500)*.006,()=>this.part(16,-19,-4,38,128));
-   this.bone(172-p.hip,471,-p.body*.7-Math.sin(now/1500)*.006,()=>this.part(17,-19,-4,38,128));
+   /* Loaded leg stands straighter and the free knee softens, so the pelvis can
+     actually travel over one foot instead of sliding both. */
+   const load=p.shift||0;
+   this.bone(128+p.hip,471-load*1.2,-p.body*.7+Math.sin(now/1500)*.006+load*.012,()=>this.part(16,-19,-4,38,128));
+   this.bone(172-p.hip,471+load*1.2,-p.body*.7-Math.sin(now/1500)*.006-load*.012,()=>this.part(17,-19,-4,38,128));
    this.bone(150,231,p.skirt,()=>this.part(5,-99,2,198,265));
    this.part(4,88,116,124,127);
    /* Seams read as cut paper without contact shadow; seat every overlap. */
@@ -251,11 +265,14 @@
     if(this.mouth>.04){const h=3+this.mouth*4;this.part(this.mouth>.65?19:18,-4,-19-h/2,8,h);}
    });
    /* Arms sit above the head so a hand on the chin or temple stays visible. */
-   this.arm(-1);this.arm(1);
+   /* Ribcage rises with the breath, so the shoulder sockets lift with it and
+     the ribcage on the exhale settles back down. */
+   const lift=p.breath*1.8;
+   this.arm(-1,lift);this.arm(1,lift);
    if(this.patches){
     /* Epaulettes/shoulder cloth drawn over the sleeve top so a raised arm
        emerges from under the shoulder instead of cutting off flat. */
-    const r=14,capX=[96,204],capY=139;
+    const r=14,capX=[96,204],capY=139+lift;
     for(let i=0;i<2;i++)c.drawImage(this.patches.shoulder[i],capX[i]-r,capY-r,r*2,r*2);
    }
    c.restore();

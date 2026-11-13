@@ -12,6 +12,10 @@ Chế độ chỉ có nhân vật (`only.html`), dùng cho máy tính và điệ
 
 ![Chỉ nhân vật, khung dọc 390×844](docs/altair-only-phone.png)
 
+Zoom 1,8× vào mặt — tóc và cổ vẫn khít khi đầu nghiêng:
+
+![Cận mặt ở zoom 1,8×](docs/altair-face-zoom.png)
+
 > Trạng thái: bản Windows đã chạy thật (WebView2 + cửa sổ pet trong suốt). Chưa có APK Android. Xem [Chạy trên điện thoại](#chạy-trên-điện-thoại) để biết các hướng và giới hạn thật.
 
 ## Tính năng
@@ -139,3 +143,11 @@ Model và tài nguyên bên thứ ba giữ giấy phép gốc của chúng, **kh
 - Hình nhân vật là fan art lấy cảm hứng từ Re:CREATORS, tạo bằng công cụ imagegen từ hình tham chiếu của dự án — không phải tài sản chính thức và không dùng cho mục đích thương mại.
 
 Chi tiết đầy đủ nằm trong `NOTICE`, `NOTICE.Altair.md`, `NOTICE.Altair-rig.md`, `NOTICE.Altair-voice.md`.
+
+## CSS dùng chung, dáng đứng và zoom — 2026.11.14-rig5
+
+- `rig-base.css` giữ 4 quy tắc cấu trúc mà mọi bề mặt đều cần (`.character-world`, `.character-rig`, `.pose-layer/.mouth-layer`, `.joint-canvas`, `transform-origin` của world). `character.css`, `pet.css` và `only.css` chỉ còn phần riêng của từng bề mặt. `only.css` được viết lại: bỏ rule chết (`.hint-chip`, `[data-flat]`, `[data-reduced]`), bỏ selector trùng và các khai báo lặp với `character.css`.
+- **Dáng đứng**: trọng tâm dồn sang một chân theo chu kỳ ~39 giây (sine bị bóp bằng `tanh` nên mỗi bên **giữ** vài nhịp rồi mới đổi), hông đi theo, chân chịu lực thẳng hơn chân còn lại, thân nghiêng nhẹ và đầu bù lại để giữ đường chân trời. Vai nhô lên xuống theo hơi thở (`breath × 1,8` đơn vị) cùng nắp vai.
+- **Vật lý khi zoom mặt**: gốc tóc giờ bám vào hộp sọ qua `headPoint()` thay vì toạ độ tuyệt đối, nên khi đầu nghiêng tóc xoay cùng đầu, lò xo chỉ còn tạo độ trễ; trước đây ở zoom 1,8× tóc trượt khỏi đầu và hở một khe.
+- **Sửa lỗi camera**: `only.html` thiếu `transform-origin: 50% 0` cho world nên zoom phóng từ giữa khung và cắt mất đầu. Rule này đã chuyển vào `rig-base.css`.
+- **Sửa lỗi chạm đầu tiên**: `TouchController.lastReaction` khởi tạo `0`, mà `performance.now()` cũng bắt đầu gần 0, nên cú chạm trong 1,4 giây đầu phiên bị coi là "quá nhanh" và chỉ đổi dáng, không có phản ứng/giọng. Nay khởi tạo `-1e9`.

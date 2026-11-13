@@ -1,4 +1,6 @@
-/* Character-only surface: no header, no chat panel, full-viewport Altair. */
+/* Character-only surface (only.html): Altair alone, no header, no chat panel.
+   Shared rig primitives live in rig-base.css; this file owns the page. */
+
 html, body.only-ui {
   margin: 0; padding: 0; width: 100%; height: 100%;
   max-width: none; overflow: hidden;
@@ -6,38 +8,33 @@ html, body.only-ui {
   color: #e8eef7; font-family: "Segoe UI", system-ui, sans-serif;
   -webkit-tap-highlight-color: transparent;
 }
-body.only-ui[data-flat="true"] { background: transparent; }
 
 #altair-character {
   position: fixed; inset: 0;
   display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
-  padding-bottom: env(safe-area-inset-bottom, 0);
 }
 
+/* Full body, never cropped: the stage keeps the rig's 1:2 ratio, and 92px at the
+   bottom is reserved for the caption band and the dock. */
 .only-ui .character-stage {
   position: relative; isolation: isolate;
-  height: min(calc(100% - 92px), calc(100vw * 2)); aspect-ratio: 1 / 2; max-height: calc(100% - 92px); max-width: 100%;
+  height: min(calc(100% - 92px), calc(100vw * 2));
+  aspect-ratio: 1 / 2; max-height: calc(100% - 92px); max-width: 100%;
   margin: 0; border: 0; border-radius: 0; box-shadow: none;
   background: transparent; overflow: visible; outline: none;
   touch-action: none; cursor: grab;
 }
 .only-ui .character-stage.dragging { cursor: grabbing; }
 .only-ui .character-stage:focus-visible { outline: 2px solid #d5b56e80; outline-offset: -6px; border-radius: 18px; }
-.only-ui .character-world { position: absolute; inset: 0; transform-origin: 50% 0; pointer-events: none; }
-.only-ui .character-rig { position: absolute; inset: 0; transform-origin: 50% 45%; animation: only-breathe 6s ease-in-out infinite; }
-.only-ui .pose-layer, .only-ui .mouth-layer { position: absolute; inset: 0; background-repeat: no-repeat; pointer-events: none; }
-.only-ui .pose-layer { opacity: 0; }
-.only-ui .mouth-layer { opacity: 0; }
-.only-ui .blink-layer { display: none; }
-/* The rig canvas is 450x900 device pixels; without this rule it renders at its
-   intrinsic size and the body is clipped by the stage. */
-.only-ui .joint-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; pointer-events: none; }
-.only-ui.rig-active .character-rig, .only-ui .rig-active .character-rig { animation: none; }
-.only-ui.rig-active .pose-layer, .only-ui.rig-active .mouth-layer { display: none !important; }
-.only-ui[data-reduced="true"] .character-rig,
-.reduced .character-rig { animation: none; }
 
-/* Warm pool of light behind her so the silhouette does not float in a void. */
+/* The rig canvas is 450x900 device pixels and has no intrinsic CSS size;
+   without rig-base.css it would paint at full size and clip the body. */
+.only-ui .character-rig { transform-origin: 50% 45%; animation: only-breathe 6s ease-in-out infinite; }
+.only-ui .blink-layer { display: none; }
+.only-ui.rig-active .character-rig { animation: none; }
+.only-ui.rig-active .pose-layer, .only-ui.rig-active .mouth-layer { display: none; }
+
+/* Warm pool of light and a contact shadow, so she stands on something. */
 .only-ui .character-stage::before {
   content: ""; position: absolute; z-index: -1; left: 50%; top: 6%;
   width: 86%; height: 88%; transform: translateX(-50%);
@@ -65,23 +62,22 @@ body.only-ui[data-flat="true"] { background: transparent; }
 .only-ui .character-bubble:empty { display: none; }
 
 .only-ui .character-caption {
-  position: fixed; left: 50%; transform: translateX(-50%);
-  top: calc(10px + env(safe-area-inset-top, 0px)); bottom: auto;
-  margin: 0; font-size: 12.5px; letter-spacing: .02em; color: #c9b587;
+  position: fixed; left: 50%; top: calc(10px + env(safe-area-inset-top, 0px));
+  transform: translateX(-50%); margin: 0;
+  font-size: 12.5px; letter-spacing: .02em; color: #c9b587;
   text-shadow: 0 1px 6px #000a; pointer-events: none;
   max-width: min(560px, 86%); text-align: center;
 }
 .only-ui .character-caption:empty { display: none; }
 
 #only-dock {
-  position: fixed; left: 50%; transform: translateX(-50%);
-  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  position: fixed; left: 50%; bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
   display: flex; gap: 8px; padding: 7px 9px;
   width: max-content; max-width: calc(100% - 20px);
   border-radius: 999px; background: #0f1722d9; border: 1px solid #ffffff14;
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px); z-index: 4;
   opacity: .42; transition: opacity .2s ease;
-  z-index: 4;
 }
 #only-dock:hover, #only-dock:focus-within, body.only-ui[data-touched="true"] #only-dock { opacity: 1; }
 #only-dock button {
@@ -95,27 +91,20 @@ body.only-ui[data-flat="true"] { background: transparent; }
 #only-dock button:focus-visible { outline: 2px solid #d5b56e; outline-offset: 2px; }
 #only-dock button[aria-pressed="false"] { color: #8d9aad; border-color: #ffffff1f; }
 
-.only-ui .hint-chip {
-  position: fixed; left: 50%; transform: translateX(-50%);
-  top: calc(14px + env(safe-area-inset-top, 0px));
-  font-size: 11.5px; color: #9fb0c4; background: #0d1520b8; display: none;
-  border: 1px solid #ffffff14; border-radius: 999px; padding: 4px 11px;
-  pointer-events: none; opacity: 0; animation: only-hint 6s ease forwards;
+@keyframes only-breathe {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-2px) scale(1.005); }
 }
-@keyframes only-hint { 0%,72% { opacity: 1; } 100% { opacity: 0; visibility: hidden; } }
-@keyframes only-breathe { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-2px) scale(1.005); } }
 
-/* Short screens (landscape phones): keep her whole body, shrink the chrome. */
+@media (max-width: 460px) {
+  #only-dock { gap: 5px; padding: 6px 7px; width: calc(100% - 16px); }
+  #only-dock button { flex: 1 1 0; min-width: 0; padding: 0 6px; font-size: 11.5px; }
+}
 @media (max-height: 520px) {
   .only-ui .character-caption { display: none; }
   #only-dock { bottom: calc(8px + env(safe-area-inset-bottom, 0px)); }
 }
 @media (prefers-reduced-motion: reduce) {
   .only-ui .character-rig { animation: none; }
-  .only-ui .character-bubble { transition: none; }
-}
-
-@media (max-width: 460px) {
-  #only-dock { gap: 5px; padding: 6px 7px; width: calc(100% - 16px); }
-  #only-dock button { flex: 1 1 0; min-width: 0; padding: 0 6px; font-size: 11.5px; }
+  .only-ui .character-bubble, #only-dock { transition: none; }
 }

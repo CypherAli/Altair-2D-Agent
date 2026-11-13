@@ -1,0 +1,9 @@
+/* Structural primitives shared by every surface that draws the rig.
+   Sizing, lighting and chrome stay in character.css (studio), pet.css (overlay)
+   and only.css (character-only). Load this file first. */
+.character-world, .character-rig { position: absolute; inset: 0; }
+/* The camera maths in character.js pans in world pixels and scales from the
+   top edge; without this origin a zoom crops the head instead of magnifying. */
+.character-world { transform-origin: 50% 0; }
+.pose-layer, .mouth-layer { position: absolute; inset: 0; background-repeat: no-repeat; pointer-events: none; }
+.joint-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; pointer-events: none; }

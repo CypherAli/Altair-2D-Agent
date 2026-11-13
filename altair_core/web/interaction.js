@@ -10,7 +10,7 @@
  if(typeof window==='undefined')return;
  class TouchController {
   constructor(character){
-   this.c=character;this.stage=character.stage;this.drag=null;this.moveNext=false;this.lastReaction=0;this.taps=[];this.clickTimer=null;
+   this.c=character;this.stage=character.stage;this.drag=null;this.moveNext=false;/* -Infinity, not 0: performance.now() starts near zero, so 0 made the first tap of a session look throttled and it only changed the pose. */this.lastReaction=-1e9;this.taps=[];this.clickTimer=null;
    this.stage.addEventListener('pointerdown',e=>this.down(e));this.stage.addEventListener('pointermove',e=>this.move(e));this.stage.addEventListener('pointerup',e=>this.up(e));this.stage.addEventListener('pointercancel',()=>this.reset());
    this.stage.addEventListener('pointerleave',()=>{if(!this.drag)character.rig?.setLook(0,0);});
    this.stage.addEventListener('dblclick',e=>{e.preventDefault();clearTimeout(this.clickTimer);document.dispatchEvent(new CustomEvent('altair:chat'));});

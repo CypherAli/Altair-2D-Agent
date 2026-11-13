@@ -7,9 +7,8 @@ body { max-width:1280px; }header strong { color:var(--altair-gold);letter-spacin
 .character-stage.dragging { cursor:grabbing; }.character-stage:focus-visible { outline:2px solid var(--altair-gold); }
 .character-stage::before { content:'';position:absolute;inset:15% 7%;border:1px solid #d5b56e35;border-radius:50%;pointer-events:none; }
 .character-halo { position:absolute;inset:15% 7%;border-radius:50%;border-top:2px solid #d5b56e70;opacity:0;pointer-events:none; }
-.character-world { position:absolute;top:0;left:0;width:100%;aspect-ratio:1 / 2;transform-origin:50% 0;transition:transform .18s ease;pointer-events:none; }
-.dragging .character-world { transition:none; }.character-rig { position:absolute;inset:0;transform-origin:50% 45%;animation:altair-breathe 5s ease-in-out infinite; }
-.pose-layer,.mouth-layer { position:absolute;inset:0;background-repeat:no-repeat;pointer-events:none; }
+.character-world { top:0;left:0;width:100%;aspect-ratio:1 / 2;transition:transform .18s ease;pointer-events:none; }
+.dragging .character-world { transition:none; }.character-rig { transform-origin:50% 45%;animation:altair-breathe 5s ease-in-out infinite; }
 .pose-layer { opacity:0;transition:opacity .18s ease-in-out; }.mouth-layer { opacity:0;transition:opacity .045s linear; }
 .blink-layer { position:absolute;opacity:0;pointer-events:none;left:42%;top:13.6%;width:16%;height:2.6%; }
 [data-view="bust"] .blink-layer { left:38%;top:32.3%;width:24%;height:6.2%; }
@@ -41,7 +40,6 @@ body { max-width:1280px; }header strong { color:var(--altair-gold);letter-spacin
 @media(prefers-reduced-motion:reduce) { .character-rig,.character-halo { animation:none!important; }.pose-layer { transition:none; } }
 
 .rig-active .character-rig {animation:none!important;}
-.joint-canvas {position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none;}
 .rig-active .pose-layer,.rig-active .mouth-layer,.rig-active .blink-layer {display:none!important;}
 [data-listening="true"] .character-stage {filter:drop-shadow(0 0 5px #78c9e055);}
 
