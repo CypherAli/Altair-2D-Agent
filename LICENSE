@@ -1,0 +1,45 @@
+MIT License
+
+Copyright (c) 2026 CypherAli
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+--------------------------------------------------------------------------
+
+This license covers the source code of this repository only.
+
+Third-party models, voices, fonts and artwork are NOT covered by it and remain
+under their own upstream licenses:
+
+  - Google Gemma 4 E2B-IT (Apache-2.0), including the LiteRT build
+    https://huggingface.co/google/gemma-4-E2B-it
+    https://huggingface.co/litert-community/gemma-4-E2B-it-litert-lm
+  - Piper 1.8.0 (GPL-3.0) and the vi_VN/vais1000/medium voice
+    https://github.com/OHF-Voice/piper1-gpl
+    https://huggingface.co/rhasspy/piper-voices
+  - Kokoro-82M jf_alpha ONNX (Apache-2.0)
+    https://huggingface.co/hexgrad/Kokoro-82M
+  - Vosk (Apache-2.0)
+    https://github.com/alphacep/vosk-api
+
+The character artwork is unofficial fan art inspired by Re:CREATORS and is not
+intended for commercial use.
+
+See NOTICE, NOTICE.Altair.md, NOTICE.Altair-rig.md and NOTICE.Altair-voice.md
+for the full attribution.
