@@ -8,6 +8,10 @@ Không gọi API model trả phí. Model, giọng đọc và nhận dạng tiế
 
 ![Màn hình khởi đầu với các câu gợi ý](docs/altair-empty.png)
 
+Chế độ chỉ có nhân vật (`only.html`), dùng cho máy tính và điện thoại:
+
+![Chỉ nhân vật, khung dọc 390×844](docs/altair-only-phone.png)
+
 > Trạng thái: bản Windows đã chạy thật (WebView2 + cửa sổ pet trong suốt). Chưa có APK Android. Xem [Chạy trên điện thoại](#chạy-trên-điện-thoại) để biết các hướng và giới hạn thật.
 
 ## Tính năng
@@ -74,6 +78,12 @@ node tests/test_rig.cjs && node tests/test_character.cjs && node tests/test_gree
 ## Chạy trên điện thoại
 
 Có ba hướng, xếp theo công sức tăng dần. Không hướng nào là "cài app xong là chạy" trong bản hiện tại.
+
+### 0. Đã có sẵn: trang chỉ nhân vật (`only.html`)
+
+`only.html` bỏ toàn bộ khung chat, header và bảng điều khiển: chỉ còn Altair toàn thân, một dòng trạng thái và một dock 5 nút (Vẫy · Xoa đầu · Vuốt tóc · Giọng · Nói). Đã căn theo `viewport-fit=cover` và `safe-area`, nên trên điện thoại nhân vật chiếm đúng phần màn hình, không bị tai thỏ hay thanh điều hướng cắt mất. Nút **Nói** mở `chat.html` ở cửa sổ riêng, nên khung chat không bao giờ chen vào hình nhân vật.
+
+Từ bản desktop, nút **Chỉ nhân vật** trên header mở thẳng trang này.
 
 ### 1. Điện thoại làm màn hình, máy tính vẫn chạy lõi (dễ nhất, ~1 buổi)
 

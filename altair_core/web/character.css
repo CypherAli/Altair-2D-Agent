@@ -111,3 +111,5 @@ body.app-shell .character-bubble { max-height:112px; }
 body.app-shell .chat-panel main.empty { display:grid;place-items:center; }
 body.app-shell .chat-panel main.empty .empty-state { width:100%;max-width:62ch; }
 .character-caption:empty { display:none; }
+
+header .actions a.attach { text-decoration:none;display:inline-flex;align-items:center;font-size:13px; }

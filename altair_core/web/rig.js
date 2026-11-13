@@ -26,7 +26,7 @@
  function poseAt(state,t,look={x:0,y:0}){
   const s=Math.sin,c=Math.cos;
   const p={body:look.x*.012,hip:look.x*.005,head:look.x*.035,headY:s(t*1.7)*.5,headX:look.x*2,
-   skirt:s(t*1.4)*.008,leftX:90,leftY:282,rightX:210,rightY:282,leftHand:0,rightHand:0,wristL:0,wristR:0,
+   skirt:s(t*1.4)*.008,leftX:90+s(t*.55)*.8,leftY:282+s(t*.55+1.1)*1.8,rightX:210+s(t*.55+.9)*.8,rightY:282+s(t*.55+2.2)*1.8,leftHand:0,rightHand:0,wristL:0,wristR:0,
    expression:0,blush:0,hair:0,scaleY:1,breath:s(t*1.1)*.5};
   switch(state){
    case 'waving':case 'welcome':p.leftX=68+s(t*7)*9;p.leftY=74+c(t*7)*6;p.leftHand=1;p.wristL=-.12;p.head=.035*s(t*2);p.blush=.15;break;
@@ -55,8 +55,10 @@
    case 'stretch':p.leftX=78+4*s(t*2);p.leftY=58;p.rightX=222-4*s(t*2);p.rightY=58;p.leftHand=p.rightHand=1;p.headY=-3;p.body=.014*s(t*2);p.expression=1;p.wristL=p.wristR=-.25;break;
    case 'playful':p.leftX=80;p.leftY=214;p.rightX=220;p.rightY=214;p.leftHand=p.rightHand=1;p.head=.075*s(t*4);p.blush=.5;p.body=.012*s(t*4);break;
   }
-  /* Slow weight shift keeps the idle read as "standing" rather than "frozen". */
-  p.body+=s(t*.7)*.004;p.hip+=s(t*.7)*.9;
+  /* Slow weight shift keeps the idle read as "standing" rather than "frozen".
+     The head compensates against the torso sway (a person keeps the horizon
+     steady), so the movement reads as balance instead of a swaying statue. */
+  p.body+=s(t*.7)*.004;p.hip+=s(t*.7)*.9;p.head-=p.body*.55;
   return p;
  }
  if(typeof module==='object'&&module.exports)module.exports={solveArm,zoneAt,poseAt,names};

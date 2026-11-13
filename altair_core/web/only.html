@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="vi"><head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d1219">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Altair</title>
+  <link rel="stylesheet" href="only.css">
+  <script src="interaction.js" defer></script>
+  <script src="rig.js" defer></script>
+  <script src="listen.js" defer></script>
+  <script src="character.js" defer></script>
+  <script src="only.js" defer></script>
+</head><body class="only-ui">
+  <div id="altair-character" data-state="idle" aria-label="Nhân vật Altair 2D">
+    <div class="character-stage" role="group" tabindex="0" aria-label="Altair 2D: chạm đầu để xoa, vuốt tóc, chạm gấu váy, chạm gấu áo">
+      <div class="character-world" data-world aria-hidden="true"><div class="character-rig">
+        <div class="pose-layer" data-pose></div><div class="pose-layer" data-pose></div>
+        <div class="mouth-layer" data-mouth></div>
+        <div class="blink-layer" data-blink hidden></div>
+      </div></div>
+    </div>
+    <div class="character-bubble" data-bubble aria-live="polite"></div>
+    <p class="character-caption" data-caption aria-live="polite"></p>
+      </div>
+
+  <div id="only-dock" role="toolbar" aria-label="Tương tác nhanh">
+    <button type="button" data-demo="waving">Vẫy</button>
+    <button type="button" data-demo="headpat">Xoa đầu</button>
+    <button type="button" data-demo="hair">Vuốt tóc</button>
+    <button type="button" id="only-voice" aria-pressed="true">Giọng</button>
+    <button type="button" id="only-chat">Nói</button>
+  </div>
+
+  <!-- Controls the character engine reads; the surface itself has no panels. -->
+  <div hidden>
+    <button id="show-body" type="button">Toàn thân</button>
+    <button id="show-portrait" type="button">Chân dung</button>
+    <button id="camera-top" type="button">Về đầu</button>
+    <input id="character-zoom" type="range" min="0.4" max="1.8" step="0.05" value="1">
+    <select id="extra-motion"><option value=""></option></select>
+    <input type="checkbox" id="reduce-motion">
+    <input type="checkbox" id="read-aloud" checked>
+    <button id="stop-motion" type="button">Dừng</button>
+    <span id="voice-state"></span>
+  </div>
+</body></html>
