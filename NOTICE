@@ -1,0 +1,3 @@
+AI_AGENT by Ali, built on Qwen2.5-Coder-7B-Instruct-Q5_K_M (Apache-2.0, Alibaba/Qwen).
+Base weights: qwen2.5-coder-7b-instruct-q5_k_m.gguf - NOT retrained from scratch.
+Agent code, prompts, tools in this folder are original work by Ali.

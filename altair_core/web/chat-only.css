@@ -1,0 +1,10 @@
+html,body.chat-only {margin:0;max-width:none;background:#101923;color:#e8eef7;}
+.chat-only header,.chat-only .companion,.chat-only .runtime-status {display:none;}
+.chat-only .workspace {display:block;padding:16px;}
+.chat-only .chat-panel {width:100%;}
+.chat-only .chat-panel main {height:265px;min-height:100px;overflow:auto;}
+.chat-only .chat-panel footer {padding-top:8px;}
+.chat-only .chat-panel textarea {min-height:65px;}
+.chat-only .chat-panel .actions {flex-wrap:wrap;gap:6px;}
+.chat-only .chat-panel .hint,.chat-only footer details {display:none;}
+.chat-only #chat-status {font-size:13px;line-height:1.4;color:#c9b587;min-height:20px;margin:0 0 12px;}

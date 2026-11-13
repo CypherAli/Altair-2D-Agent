@@ -1,0 +1,39 @@
+html,body.pet-ui {margin:0!important;padding:0!important;width:100%;height:100%;max-width:none;background:transparent!important;overflow:hidden;color:#f4efe5;font-family:system-ui,sans-serif;}
+.pet-ui header,.pet-ui .character-heading,.pet-ui .camera-hint,.pet-ui .camera-controls,.pet-ui .motion-controls,.pet-ui .interaction-dock,.pet-ui .companion details,.pet-ui .runtime-status,.pet-ui .character-caption,.pet-ui .stage-hints {display:none!important;}
+.pet-ui .workspace {display:block;padding:0;margin:0;}
+.pet-ui .companion {position:static;width:auto;max-width:none;}
+.pet-ui .character-stage {position:absolute;right:7px;bottom:7px;width:250px;height:500px;margin:0;border-radius:0;border:0;box-shadow:none;background:transparent;outline:none;overflow:visible;cursor:grab;}
+.pet-ui .character-stage::before,.pet-ui .character-halo,.pet-ui .character-vignette,.pet-ui .character-ground {display:none;}
+.pet-ui .character-world {transition:none;}
+.pet-ui .pose-layer {transition:none;}
+.pet-ui .character-rig {animation:none;}
+.pet-ui [data-transition="settling"] .character-rig {animation:pet-settle .32s ease-out;}
+.pet-ui .character-bubble {display:none;position:absolute;bottom:515px;left:8px;right:8px;margin:0;min-height:0;max-height:106px;overflow:auto;padding:10px 13px;border-radius:14px;background:#131c29ee;border:1px solid #d5b56e55;font-size:14px;line-height:1.45;box-shadow:0 4px 18px #0004;}
+.pet-ui[data-bubble="true"] .character-bubble {display:block;}
+.pet-ui .chat-panel {display:none;position:absolute;inset:8px 8px auto;max-height:400px;padding:14px;background:#121b2bf5;border:1px solid #d5b56e77;border-radius:16px;box-shadow:0 8px 30px #0005;overflow:auto;}
+.pet-ui[data-chat="true"] .chat-panel {display:block;}
+.pet-ui[data-chat="true"] .character-bubble {display:none;}
+.pet-ui .chat-panel main {min-height:0;max-height:190px;overflow:auto;}
+.pet-ui .chat-panel footer {padding-top:6px;}
+.pet-ui .chat-panel .hint,.pet-ui .chat-panel footer details {display:none;}
+.pet-ui .chat-panel textarea {min-height:55px;}
+.pet-ui .chat-panel .actions {gap:5px;flex-wrap:wrap;}
+.pet-ui .chat-panel select {max-width:150px;}
+.pet-ui #close-pet-chat {float:right;border:0;background:transparent;color:#e5d7b8;font-size:23px;padding:0 3px;}
+.pet-ui #pet-menu {position:absolute;left:12px;bottom:90px;width:255px;max-height:430px;overflow:auto;padding:7px;background:#121b2bf5;border:1px solid #d5b56e66;border-radius:14px;z-index:10;box-shadow:0 8px 25px #0006;}
+.pet-ui #pet-menu[hidden] {display:none;}
+.pet-ui #pet-menu button {display:block;width:100%;padding:9px 12px;text-align:left;border:0;background:transparent;color:#f4efe5;border-radius:8px;}
+.pet-ui #pet-menu button:hover,.pet-ui #pet-menu button:focus-visible {background:#d5b56e24;}
+@keyframes pet-settle {0%{transform:translateY(-2px) rotate(.25deg)}100%{transform:translateY(0) rotate(0)}}
+
+/* Quick dock: stays faintly visible so the pet can be poked without hunting
+   for the right-click menu, and brightens on hover or keyboard focus. */
+.pet-ui #pet-dock {position:absolute;left:10px;bottom:14px;display:flex;flex-direction:column;gap:6px;z-index:9;opacity:.55;transition:opacity .18s ease;}
+.pet-ui #pet-dock:hover,.pet-ui #pet-dock:focus-within {opacity:1;}
+.pet-ui #pet-dock button {width:48px;height:34px;padding:0;border-radius:10px;border:1px solid #d5b56e55;background:#121b2be6;color:#f0e8d8;font-size:12px;line-height:1;cursor:pointer;transition:background .15s ease,border-color .15s ease;}
+.pet-ui #pet-dock button:hover {background:#1e2b3d;border-color:#d5b56eaa;}
+.pet-ui #pet-dock button:focus-visible {outline:2px solid #d5b56e;outline-offset:1px;}
+
+/* Windows WebView2's color-key host needs damage on static overlay layers. */
+.pet-ui .character-bubble,.pet-ui #pet-menu,.pet-ui .chat-panel {will-change:opacity;animation:pet-composite .25s linear infinite alternate;}
+@keyframes pet-composite {from{opacity:.997}to{opacity:1}}

@@ -1,0 +1,8 @@
+{"q": "cam on ban nhe", "a": "Chào bạn! Rất vui được gặp bạn. Nếu bạn có câu hỏi hoặc cần giúp đỡ gì, hãy cho tôi biết nhé!", "intent": "chat"}
+{"q": "review extension/content.js: 2 loi that FILE:DONG", "a": "agent/content.js:27 - `chrome.scripting.executeScript` không cần `files` nếu chỉ cần chạy một file. Sua: `chrome.scripting.executeScript({target:{tabId},file:'content.js'});`\n\nKiem tra: `chrome.scripting.executeScript({target:{tabId},file:'content.js'});`", "intent": "review"}
+{"q": "test q", "a": "day la cau tra loi binh thuong", "intent": "ask"}
+{"q": "review extension/content.js: 2 loi that FILE:DONG", "a": "agent/content.js:27 - `chrome.scripting.executeScript` không cần `files` nếu chỉ cần chạy một file. Sua: `chrome.scripting.executeScript({target:{tabId},file:'content.js'});`\n\nKiem tra: `chrome.scripting.executeScript({target:{tabId},file:'content.js'});`", "intent": "review"}
+{"q": "cam on ban nhe", "a": "Chào bạn! Rất vui được gặp bạn. Nếu bạn có câu hỏi hoặc cần giúp đỡ gì, hãy cho tôi biết nhé!", "intent": "chat"}
+{"q": "test 2", "a": "test\\inspect_pdf.py:10 - `pdfplumber.open(root / 'fixture.pdf')` khong can `with` statement. Sua: `pdfplumber.open(root / 'fixture.pdf') as pdf:`\n\nKiem tra: `pdfplumber.open(root / 'fixture.pdf') as pdf:`", "intent": "review"}
+{"q": "cam on ban nhe", "a": "Chào bạn! Rất vui được gặp bạn. Nếu bạn có câu hỏi hoặc cần giúp đỡ gì, hãy cho tôi biết nhé!", "intent": "chat"}
+{"q": "cam on", "a": "Chào bạn! Rất vui được gặp bạn. Nếu bạn có câu hỏi hoặc cần giúp đỡ gì, hãy cho tôi biết nhé!", "intent": "chat"}

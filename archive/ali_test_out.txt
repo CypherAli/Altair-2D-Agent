@@ -1,0 +1,2 @@
+This project is an Electron-based PDF exporter. It uses Playwright for browser automation to capture and export web pages as PDF files. The project includes various scripts for building, testing, and running the application.
+LLM_TIME:17.4

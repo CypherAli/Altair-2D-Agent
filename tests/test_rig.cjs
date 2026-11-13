@@ -1,0 +1,14 @@
+const assert=require('node:assert/strict');
+const {solveArm,zoneAt,poseAt,names}=require('../altair_core/web/rig.js');
+const {commandFor}=require('../altair_core/web/interaction.js');
+const {downsample}=require('../altair_core/web/listen.js');
+let passed=0;const check=(name,fn)=>{fn();passed++;console.log('PASS',name);};
+check('two-bone IK reaches targets inside the arm span',()=>{for(const [x,y] of [[-25,-55],[20,120],[-60,50],[30,-90]])for(const side of [-1,1]){const a=solveArm(x,y,60,74,side),t=a.shoulder+Math.PI/2;assert.ok(Math.abs(60*Math.cos(t)+74*Math.cos(t+a.elbow)-x)<.0001);assert.ok(Math.abs(60*Math.sin(t)+74*Math.sin(t+a.elbow)-y)<.0001);}});
+check('out-of-range IK never generates NaN or stretches bones',()=>{for(const [x,y] of [[0,0],[1000,1000],[-1000,-1000]]){const a=solveArm(x,y);assert.ok(Number.isFinite(a.shoulder)&&Number.isFinite(a.elbow));}});
+check('waking visibly moves both arms over the voice clock',()=>{const a=poseAt('waking',.1),b=poseAt('waking',.5);assert.ok(Math.abs(a.leftY-b.leftY)>10);assert.ok(Math.abs(a.rightY-b.rightY)>10);assert.equal(a.leftHand,1);assert.equal(a.rightHand,1);});
+check('head stroking and shy expressions have independent joint targets',()=>{const a=poseAt('headpat',.1),b=poseAt('headpat',.5),s=poseAt('shy',.1);assert.equal(a.expression,1);assert.equal(s.expression,2);assert.ok(a.head!==b.head);assert.ok(s.leftY<230&&s.rightY<230);});
+check('all 28 states have finite joint targets',()=>{assert.equal(names.length,28);for(const n of names)for(const t of [0,.3,1,3,6])for(const value of Object.values(poseAt(n,t)))assert.ok(Number.isFinite(value));});
+check('head hair skirt body and boots are separate touch zones',()=>{assert.equal(zoneAt(.5,.15),'head');assert.equal(zoneAt(.13,.4),'hair');assert.equal(zoneAt(.5,.63),'skirt');assert.equal(zoneAt(.5,.3),'body');assert.equal(zoneAt(.5,.92),'boots');});
+check('Japanese commands route locally, open questions stay with the agent',()=>{for(const q of ['こんにちは','おはようございます','こんばんは、アルタイル！'])assert.equal(commandFor(q).action,'waving');assert.equal(commandFor('起こして').action,'waking');assert.equal(commandFor('なでなで').action,'headpat');assert.equal(commandFor('ありがとう').action,'happy');assert.equal(commandFor('日本の首都はどこですか'),null);});
+check('microphone resampling preserves PCM range and 16kHz duration',()=>{const input=Float32Array.from({length:48000},(_,i)=>Math.sin(i/48)*.5),out=downsample([input.subarray(0,12345),input.subarray(12345)],48000);assert.equal(out.length,16000);assert.ok(Math.max(...out)<=16384);assert.ok(Math.min(...out)>=-16384);assert.equal(downsample([],48000).length,0);});
+console.log(JSON.stringify({passed,failed:0}));

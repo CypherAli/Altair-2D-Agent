@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="vi"><head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Altair · Em ở đây, chủ nhân</title><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="character.css">
+  <script src="interaction.js" defer></script><script src="rig.js" defer></script><script src="listen.js" defer></script><script src="character.js" defer></script><script src="chat-relay.js" defer></script><script src="app.js" defer></script>
+</head><body class="app-shell">
+  <header><div><strong>Altair</strong><small>Em ở đây, chủ nhân.</small></div><div class="hud"><span id="status" role="status" tabindex="0">Đang kiểm tra…</span></div><div class="actions"><button id="new">Phiên mới</button><button id="power">Tắt AI</button></div></header>
+  <div class="workspace">
+    <aside class="companion" id="altair-character" data-state="idle" aria-label="Nhân vật Altair 2D">
+      <div class="character-heading"><h1>ALTAIR</h1><span>Re:CREATORS · 2D có khớp</span></div>
+      <div class="character-stage" role="group" tabindex="0" aria-label="Kéo Altair lên để xem phần thân dưới, dùng mũi tên lên xuống khi chọn bằng bàn phím">
+ <div class="character-vignette" aria-hidden="true"></div><div class="character-halo" aria-hidden="true"></div><div class="character-world" data-world aria-hidden="true"><div class="character-rig">
+ <div class="pose-layer" data-pose></div><div class="pose-layer" data-pose></div><div class="mouth-layer" data-mouth></div>
+ <div class="blink-layer" data-blink hidden></div>
+ </div></div><div class="stage-hints" aria-hidden="true"><span>Xoa đầu</span><span>Vuốt tóc</span><span>Chạm váy</span><span>Đúp: chat</span></div></div>
+ <p class="camera-hint">Kéo trong khung để xem váy, chân và giày · cuộn để thu phóng.</p>
+ <div class="camera-controls"><button id="show-body" type="button">Toàn thân</button><button id="show-portrait" type="button">Chân dung</button><button id="camera-top" type="button">Về đầu</button><label>Thu phóng<input id="character-zoom" type="range" min="0.4" max="1.8" step="0.05" value="1" aria-label="Thu phóng nhân vật"></label></div>
+      <div class="character-bubble" data-bubble>Chào chủ nhân. Em là Altair. Hôm nay em có thể giúp gì ạ?</div>
+      <p class="character-caption" data-caption aria-live="polite"></p>
+      <div class="interaction-dock" role="toolbar" aria-label="Tương tác nhanh với Altair"><button type="button" data-demo="waving">Vẫy tay</button><button type="button" data-demo="headpat">Xoa đầu</button><button type="button" data-demo="hair">Vuốt tóc</button><button type="button" data-demo="skirt">Chỉnh váy</button><button type="button" data-demo="shy">Ngại ngùng</button><button type="button" data-demo="waking">Gọi dậy</button></div>
+      <details><summary>Biểu cảm và chuyển động</summary><div class="character-options">
+        <select id="extra-motion" aria-label="Thử biểu cảm khác"><option value="">Chọn biểu cảm…</option><optgroup label="Cảm xúc"><option value="happy">Vui / gật đầu</option><option value="surprised">Ngạc nhiên</option><option value="shy">Ngại ngùng</option><option value="playful">Tinh nghịch</option><option value="thanks">Cảm ơn</option></optgroup><optgroup label="Làm việc"><option value="thinking">Suy nghĩ</option><option value="searching">Tìm nguồn</option><option value="listening">Chú ý lắng nghe</option><option value="reading">Đọc kỹ nội dung</option><option value="clarification">Hỏi lại</option></optgroup><optgroup label="Chạm và chăm sóc"><option value="headpat">Xoa đầu</option><option value="hair">Vuốt tóc</option><option value="skirt">Chỉnh gấu váy</option><option value="stretch">Vươn vai</option><option value="sleepy">Buồn ngủ</option><option value="rest">Nghỉ / nhắm mắt</option></optgroup><optgroup label="Nghi thức"><option value="salute">Chào quân phục</option><option value="bowing">Cúi chào</option><option value="pointing">Chỉ dẫn</option><option value="agree">Gật đầu đồng ý</option><option value="disagree">Lắc đầu cân nhắc</option><option value="encourage">Động viên</option><option value="error">Có lỗi</option></optgroup></select>
+        <label><input type="checkbox" id="reduce-motion">Giảm chuyển động</label><label><input type="checkbox" id="read-aloud" checked>Đọc câu trả lời</label><button id="stop-motion" type="button">Dừng động tác / giọng</button>
+      </div><p id="voice-state">Đang kiểm tra giọng đọc trên máy…</p><p>Giọng nữ Nhật thay thế chạy ngay trên máy, kèm phụ đề Việt; chưa phải giọng gốc Altair. Miệng theo âm thanh, khép ở chỗ im lặng; chưa phân biệt từng âm vị. Có 28 trạng thái chuyển động; gọi dậy gồm động tác hai tay và tiếng gọi mẫu, chưa đặt báo thức.</p></details>
+    </aside>
+    <section class="chat-panel" aria-label="Hội thoại với Altair"><main id="conversation" aria-live="polite"></main><footer>
+      <div class="hint">Enter để gửi · Shift+Enter xuống dòng · gửi ảnh hoặc bật tra cứu có nguồn.</div><form id="chat"><label class="sr" for="question">Nói với Altair</label>
+        <textarea id="question" rows="2" maxlength="3000" placeholder="Chủ nhân muốn em giúp gì?"></textarea><div class="actions">
+        <select id="search-mode" aria-label="Chế độ tìm kiếm"><option value="auto">Tự động tra cứu</option><option value="on">Tra cứu web</option><option value="off">Không tra cứu</option></select>
+        <label class="attach">Đính kèm ảnh<input id="image" type="file" accept="image/png,image/jpeg" hidden></label><span id="attachment"></span><button id="clear-image" type="button" hidden>Bỏ ảnh</button><span class="space"></span><button id="stop" type="button" hidden>Dừng</button><button id="listen-ja" type="button" aria-label="Nghe tiếng Nhật">🎙 Nghe Nhật</button><button id="send" type="submit">Gửi</button>
+      </div></form><details><summary>Ghi nhớ cá nhân</summary><form id="notes"><input id="note" maxlength="500" placeholder="Điều chủ nhân muốn em nhớ…"><button>Lưu ghi nhớ</button></form><div id="note-state"></div></details>
+    </footer></section>
+  </div>
+</body></html>

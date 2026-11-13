@@ -1,0 +1,15 @@
+[
+  {"terms":["he mat troi"],"title":"NASA: Planets","url":"https://science.nasa.gov/solar-system/planets/"},
+  {"terms":["solar system","planets"],"title":"NASA: Planets","url":"https://science.nasa.gov/solar-system/planets/"},
+  {"terms":["jev","confidence"],"title":"TypeSafe: Confidence","url":"https://docs.typesafe.ai/confidence"},
+  {"terms":["jev","do chac"],"title":"TypeSafe: Confidence","url":"https://docs.typesafe.ai/confidence"},
+  {"terms":["jev"],"title":"TypeSafe: Introduction","url":"https://docs.typesafe.ai/introduction"},
+  {"terms":["typesafe"],"title":"TypeSafe: Introduction","url":"https://docs.typesafe.ai/introduction"},
+  {"terms":["intelligence index"],"title":"Artificial Analysis: Intelligence methodology","url":"https://artificialanalysis.ai/methodology/intelligence-benchmarking"},
+  {"terms":["python","version"],"title":"Python.org: Downloads","url":"https://www.python.org/downloads/"},
+  {"terms":["python","phien ban"],"title":"Python.org: Downloads","url":"https://www.python.org/downloads/"},
+  {"terms":["alarmclock"],"title":"Android: Common intents — AlarmClock","url":"https://developer.android.com/guide/components/intents-common"},
+  {"terms":["android","bao thuc"],"title":"Android: Common intents","url":"https://developer.android.com/guide/components/intents-common"},
+  {"terms":["litert"],"title":"Google AI Edge: LiteRT-LM Gemma 4","url":"https://developers.google.com/edge/litert-lm/models/gemma-4"},
+  {"terms":["custom search","api"],"title":"Google: Custom Search JSON API","url":"https://developers.google.com/custom-search/v1/overview"}
+]

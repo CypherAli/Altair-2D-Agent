@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ali — Local Workspace</title>
+<link rel="icon" href="icon.svg">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="topbar">
+  <div class="traffic"><span class="r"></span><span class="y"></span><span class="g"></span></div>
+  <div class="crumb">◈ Forma &nbsp;/&nbsp; acme-platform</div>
+  <div class="sp"></div>
+  <div class="local">LOCAL WORKSPACE</div>
+</div>
+<div class="layout">
+  <!-- LEFT -->
+  <aside class="side">
+    <div class="logo">⟡ <b>ali</b> <span class="beta">BETA</span></div>
+    <button class="wsbtn" id="btnRepo">📁 <span id="repoName">acme-platform</span> ▾</button>
+    <input type="text" id="repoPath" placeholder="D:\code\my-app  (đường dẫn repo)" style="width:100%;background:#0d1319;border:1px solid #202a36;color:#e8eef5;border-radius:9px;padding:8px 10px;">
+    <div style="display:flex;gap:6px;margin-top:6px;">
+      <button class="wsbtn" id="btnSetRepo" style="flex:1;cursor:pointer;">Set repo</button>
+      <label class="wsbtn" style="flex:1;cursor:pointer;text-align:center;">📂 Chọn folder<input type="file" id="folderPick" webkitdirectory directory multiple hidden></label>
+    </div>
+    <button class="new" id="btnNew">＋ New session <kbd>⌘N</kbd></button>
+    <button class="search">⌕ Search sessions <kbd>⌘K</kbd></button>
+    <div class="cap">SESSIONS <span>5</span></div>
+    <ul class="sess" id="sessList">
+      <li class="on">▤ Review authentic… <i>🗑</i></li>
+      <li>⌕ Research API architec…</li>
+      <li>⎙ Analyze app performa…</li>
+    </ul>
+    <div class="cap">WORKSPACE</div>
+    <div class="wrow">📁 Project files <span>24</span></div>
+    <div class="wrow">⑂ feature/auth-refactor</div>
+    <div class="cap">NÃO NGOÀI (API)</div>
+    <input type="text" id="apiBase" placeholder="https://openrouter.ai/api/v1" style="width:100%;background:#0d1319;border:1px solid #202a36;color:#e8eef5;border-radius:9px;padding:8px 10px;">
+    <input type="text" id="apiModel" placeholder="model vd meta-llama/..." style="width:100%;background:#0d1319;border:1px solid #202a36;color:#e8eef5;border-radius:9px;padding:8px 10px;margin-top:6px;">
+    <input type="password" id="apiKey" placeholder="API key (chỉ lưu local)" style="width:100%;background:#0d1319;border:1px solid #202a36;color:#e8eef5;border-radius:9px;padding:8px 10px;margin-top:6px;">
+    <button class="wsbtn" id="btnKey" style="cursor:pointer;margin-top:6px;">🔑 Lưu key</button>
+    <div class="cap">DẠY ALI (nhớ vĩnh viễn)</div>
+    <input type="text" id="lesson" placeholder="Vd: cli.mjs dung port 8124, khong phai 8123" style="width:100%;background:#0d1319;border:1px solid #202a36;color:#e8eef5;border-radius:9px;padding:8px 10px;">
+    <button class="wsbtn" id="btnLesson" style="cursor:pointer;margin-top:6px;">📌 Luu bai hoc</button>
+    <button class="wsbtn" id="btnAiOff" style="cursor:pointer;margin-top:6px;">🔴 Tắt AI (giải phóng RAM)</button>
+    <div class="foot">
+      <div class="ready" id="agentState">● Agent ready <span>UI PREVIEW</span></div>
+      <div class="row">⚙ Settings <span>ⓘ</span></div>
+      <div class="user"><span class="av">A</span><div><b>Ali</b><small>Personal workspace · Trinh</small></div><span>⋯</span></div>
+    </div>
+  </aside>
+  <!-- MID -->
+  <main class="mid">
+    <header>
+      <div><h1>Review authentication flow</h1><small>● acme-platform &nbsp;/&nbsp; feature/auth-refactor</small></div>
+      <div class="hact">▢ ⋯</div>
+    </header>
+    <nav class="tabs"><b>Conversation</b><span>Activity</span><span>Files <i>3</i></span><em>Today, 10:42 AM</em></nav>
+    <div class="conv" id="conv">
+      <div class="card warn">
+        <div class="t">ⓘ <b>Missing rate limiting on login</b> <span class="pill">MEDIUM</span></div>
+        <p>The login endpoint accepts unlimited attempts. Add an IP-based rate limiter to prevent brute-force attacks.</p>
+        <a>src/app/api/login.ts:8 ↗</a>
+      </div>
+      <div class="card ok">
+        <div class="t">✓ <span>Prepared a suggested fix for session validation.</span> <a>View changes ↗</a></div>
+        <div class="meta">⧉ 👍 &nbsp; Sample review · 1.4k tokens</div>
+      </div>
+    </div>
+    <div class="composer">
+      <textarea id="q" placeholder="Ask anything about your code..."></textarea>
+      <div class="crow">
+        <span class="ic">📎</span><span class="ic">@</span>
+        <select class="rev" id="modeSel" title="Che do nao">
+          <option value="auto">Auto</option>
+          <option value="nhanh">Nhanh (local)</option>
+          <option value="ky">Kỹ (nghi + tự soát)</option>
+          <option value="api">API ngoài</option>
+        </select>
+        <span class="sp"></span>
+        <small id="keyState">API: chưa key</small>
+        <button class="up" id="btnAsk">↑</button>
+      </div>
+    </div>
+    <div class="guard">🛡 Read-only access &nbsp;·&nbsp; Changes require your approval</div>
+  </main>
+  <!-- RIGHT -->
+  <aside class="right">
+    <div class="rt"><b>Nguồn trả lời</b><span id="srcCount"></span><i>✕</i></div>
+    <div id="srcList"><div class="f2">Hỏi Ali 1 câu, file nguồn sẽ hiện ở đây.</div></div>
+    <pre class="code" id="codeView"><code>Bấm 1 file để xem nội dung.</code></pre>
+    <div class="rt2">Review changes <span>2 files</span></div>
+    <div class="f2">⎙ auth.ts <b class="add">+8 −3</b></div>
+    <div class="f2">⎙ middleware.ts <b class="add">+4 −2</b></div>
+    <button class="accept" id="btnAccept">✓ &nbsp;Accept changes</button>
+    <button class="accept" id="btnLoop" style="background:#1a2b26;color:#2fe6a7;margin-top:6px;">🔁 Sửa tới khi chạy được (tối đa 2 vòng)</button>
+    <div class="br">⑂ feature/auth-refactor ⧉</div>
+  </aside>
+</div>
+<script src="app.js"></script>
+</body>
+</html>

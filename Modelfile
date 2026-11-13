@@ -1,0 +1,3 @@
+﻿# Altair now uses .altair-runtime/litert/altair.litertlm with LiteRT-LM.
+# Run SetupAltair.bat, then AltairStudio.bat. No Ollama FROM is needed.
+# The old 7B Modelfile has been preserved in the upgrade backup.

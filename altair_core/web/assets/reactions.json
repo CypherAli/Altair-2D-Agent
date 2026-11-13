@@ -1,0 +1,58 @@
+{
+  "happy": {
+    "ja": "どういたしまして、ご主人様。",
+    "vi": "Không có gì đâu, chủ nhân.",
+    "file": "voice-ja-happy.wav",
+    "duration_s": 3.15,
+    "sha256": "acdba7f51bfee5015cf76c82ad83368ca41702d1bf4ceb7789708f3ad252f52e"
+  },
+  "headpat": {
+    "ja": "ご主人様、くすぐったいです。でも、落ち着きます。",
+    "vi": "Chủ nhân, hơi nhột đấy ạ. Nhưng em thấy dễ chịu.",
+    "file": "voice-ja-headpat.wav",
+    "duration_s": 4.825,
+    "sha256": "bf3e05b5274d38065c1c53a7a9efe5b69d9f06ccbf4acffd4383d1114705993e"
+  },
+  "shy": {
+    "ja": "そんなに見つめられると、少し照れてしまいます。",
+    "vi": "Chủ nhân nhìn vậy làm em hơi ngại ạ.",
+    "file": "voice-ja-shy.wav",
+    "duration_s": 4.4,
+    "sha256": "ab93e3c1e36170078ae9abbdbbc198b8faa7a237066a18496c380002182617ea"
+  },
+  "hair": {
+    "ja": "髪を優しく整えてくださって、ありがとうございます。",
+    "vi": "Cảm ơn chủ nhân đã nhẹ nhàng vuốt tóc cho em.",
+    "file": "voice-ja-hair.wav",
+    "duration_s": 5.25,
+    "sha256": "218c66bdf9e88d7149af5bdbbcd8e53bde94b07af75e4d5df2ecfb90f38d0b6f"
+  },
+  "skirt": {
+    "ja": "裾を整えますね。ご主人様、少しお待ちください。",
+    "vi": "Để em chỉnh lại gấu váy. Chủ nhân chờ một chút nhé.",
+    "file": "voice-ja-skirt.wav",
+    "duration_s": 5.325,
+    "sha256": "a081fd02c7948c28d7a384477ad259a9c6fb0a857aa79c94fe30dd424d328ce0"
+  },
+  "sleepy": {
+    "ja": "おやすみなさい、ご主人様。良い夢を。",
+    "vi": "Chúc chủ nhân ngủ ngon và có những giấc mơ đẹp.",
+    "file": "voice-ja-sleepy.wav",
+    "duration_s": 3.8,
+    "sha256": "4b58d0b2ab6b075de59e113b67cbc59ce2659c3e6a786ffc66c064c0a87d0a2a"
+  },
+  "thanks": {
+    "ja": "ありがとうございます、ご主人様。",
+    "vi": "Em cảm ơn chủ nhân.",
+    "file": "voice-ja-thanks.wav",
+    "duration_s": 3.35,
+    "sha256": "15420a40e454098950f641028dc91f50caa24f750da0cdf664d887a31f1d0c67"
+  },
+  "stretch": {
+    "ja": "少し背伸びをしますね。",
+    "vi": "Để em vươn vai một chút nhé.",
+    "file": "voice-ja-stretch.wav",
+    "duration_s": 2.975,
+    "sha256": "c8810e2e4d3a162c9d056e3ffc107c68423ea37e04e579844b6141744ffbe24b"
+  }
+}

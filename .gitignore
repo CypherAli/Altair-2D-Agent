@@ -1,0 +1,27 @@
+# ---- Model weights: cài lại bằng SetupAltair.bat, không đưa lên GitHub ----
+ali-model-7b.gguf
+*.gguf
+*.onnx
+*.bin
+*.safetensors
+
+# ---- Runtime, model, giọng nói tải về (5,2 GB) ----
+.altair-runtime/
+
+# ---- Bản sao lưu cục bộ của các lần sửa trước ----
+.altair-backup-*/
+
+# ---- Hồ sơ cá nhân, cache, log ----
+.cache/
+.freebuff/
+__pycache__/
+*.pyc
+*.log
+test-results.json
+
+# ---- Hệ điều hành ----
+Thumbs.db
+desktop.ini
+
+# ---- Bo nho ca nhan cua tro ly (du lieu nguoi dung) ----
+memory/
