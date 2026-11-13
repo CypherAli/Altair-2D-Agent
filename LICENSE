@@ -19,27 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
---------------------------------------------------------------------------
-
-This license covers the source code of this repository only.
-
-Third-party models, voices, fonts and artwork are NOT covered by it and remain
-under their own upstream licenses:
-
-  - Google Gemma 4 E2B-IT (Apache-2.0), including the LiteRT build
-    https://huggingface.co/google/gemma-4-E2B-it
-    https://huggingface.co/litert-community/gemma-4-E2B-it-litert-lm
-  - Piper 1.8.0 (GPL-3.0) and the vi_VN/vais1000/medium voice
-    https://github.com/OHF-Voice/piper1-gpl
-    https://huggingface.co/rhasspy/piper-voices
-  - Kokoro-82M jf_alpha ONNX (Apache-2.0)
-    https://huggingface.co/hexgrad/Kokoro-82M
-  - Vosk (Apache-2.0)
-    https://github.com/alphacep/vosk-api
-
-The character artwork is unofficial fan art inspired by Re:CREATORS and is not
-intended for commercial use.
-
-See NOTICE, NOTICE.Altair.md, NOTICE.Altair-rig.md and NOTICE.Altair-voice.md
-for the full attribution.

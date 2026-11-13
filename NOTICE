@@ -1,3 +1,13 @@
 AI_AGENT by Ali, built on Qwen2.5-Coder-7B-Instruct-Q5_K_M (Apache-2.0, Alibaba/Qwen).
 Base weights: qwen2.5-coder-7b-instruct-q5_k_m.gguf - NOT retrained from scratch.
 Agent code, prompts, tools in this folder are original work by Ali.
+
+## Giấy phép của tài nguyên bên thứ ba
+
+Giấy phép MIT trong `LICENSE` chỉ phủ mã nguồn của repo này. Model, giọng đọc và hình nhân vật giữ giấy phép gốc của chúng:
+
+- Model nền Google Gemma 4 E2B-IT, Apache-2.0; bản LiteRT mobile cũng của Google.
+- Piper 1.8.0 (GPL-3.0) và voice `vi_VN/vais1000/medium` từ `rhasspy/piper-voices`.
+- Kokoro-82M `jf_alpha` ONNX (Apache-2.0) cho giọng Nhật thay thế.
+- Vosk (Apache-2.0) cho nhận dạng tiếng nói.
+- Hình nhân vật là fan art lấy cảm hứng từ Re:CREATORS, không dùng cho mục đích thương mại.
