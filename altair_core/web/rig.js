@@ -82,7 +82,7 @@
  class Rig {
   constructor(world,root){
    this.world=world;this.root=root;this.canvas=document.createElement('canvas');this.canvas.className='joint-canvas';this.canvas.setAttribute('aria-hidden','true');this.canvas.width=450;this.canvas.height=900;world.querySelector('.character-rig').append(this.canvas);this.ctx=this.canvas.getContext('2d',{alpha:true,willReadFrequently:false});
-   this.state='idle';this.since=performance.now();this.last=0;this.lastDraw=0;this.blendStart=0;this.look={x:0,y:0};this.mouth=0;this.disposed=false;this.frames=0;this.lastMask=0;this.blinkAt=performance.now()+3800;this.blinkEnd=0;this.joints={};
+   this.state='idle';this.since=performance.now();this.last=0;this.lastDraw=0;this.blendStart=0;this.look={x:0,y:0};this.mouth=0;this.disposed=false;this.frames=0;this.lastMask=0;this.blinkAt=performance.now()+3800;this.blinkEnd=0;this.blinkStart=-1e9;this.doubleBlink=0;this.joints={};
    const base=poseAt('idle',0,this.look);
    this.cur={};   for(const key of ['body','hip','head','headY','headX','skirt','scaleY','blush','wristL','wristR','breath','shift'])this.cur[key]=base[key];
    this.hands=[base.leftHand,base.rightHand];this.expression=base.expression;this.hairAngle=base.hair;
@@ -156,6 +156,15 @@
    grad.addColorStop(1-bottom,'rgba(0,0,0,1)');grad.addColorStop(1,'rgba(0,0,0,0)');
    g.fillStyle=grad;g.fillRect(0,0,cv.width,cv.height);
    return cv;
+  }
+  /* 0..1 eyelid closure. Two-beat blinks and a small offset between eyes keep
+     the motion from looking like a single mechanical flap. */
+  lidAt(now){
+   const start=this.blinkStart,t=now-start;
+   if(t<0||t>170)return 0;
+   if(t<55)return t/55;
+   if(t<105)return 1;
+   return (170-t)/65;
   }
   buildPatches(){
    this.sleeves=[this.slice(rects[8][0],rects[8][1],rects[8][2],rects[8][3],.24,.05),this.slice(rects[12][0],rects[12][1],rects[12][2],rects[12][3],.24,.05)];
@@ -256,11 +265,17 @@
    this.softShadow(100,176,11,15,.16);this.softShadow(200,176,11,15,.16);
    c.restore();
    const reduced=this.root.classList.contains('reduced');
-   if(!reduced&&now>=this.blinkAt){this.blinkEnd=now+105;this.blinkAt=now+3900+Math.random()*2400;}
-   const eyeClosed=this.expression===1||now<this.blinkEnd,face=eyeClosed?1:this.expression;
+   if(!reduced&&now>=this.blinkAt){this.blinkStart=now;this.blinkAt=now+3900+Math.random()*2400;if(Math.random()<.14)this.doubleBlink=now+300;}
+   if(this.doubleBlink&&now>=this.doubleBlink){this.blinkStart=this.doubleBlink;this.doubleBlink=0;}
+   const face=this.expression;
    if(this.patches)c.drawImage(this.patches.neck,150-14,130-14,28,28);
    this.bone(NECK_X+p.headX,NECK_Y+p.headY,p.head,()=>{
     c.scale(1-Math.abs(this.look.x)*.03,1);this.part(face,-43,-121,86,126);
+    /* Blink by cross-fading to the closed-eye variant. The old code cut to it
+      for three frames, which at face zoom read as the whole face snapping. */
+    const lid=this.lidAt(now);
+    this.root.dataset.eyelid=lid.toFixed(2);
+    if(face!==1&&lid>.02){c.save();c.globalAlpha=Math.min(1,lid);this.part(1,-43,-121,86,126);c.restore();}
     if(p.blush>0){const grad=c.createRadialGradient(-14,-25,1,-14,-25,8);grad.addColorStop(0,`rgba(230,92,110,${p.blush*.28})`);grad.addColorStop(1,'rgba(230,92,110,0)');c.fillStyle=grad;c.fillRect(-23,-34,18,18);c.save();c.scale(-1,1);c.fillRect(-23,-34,18,18);c.restore();}
     if(this.mouth>.04){const h=3+this.mouth*4;this.part(this.mouth>.65?19:18,-4,-19-h/2,8,h);}
    });

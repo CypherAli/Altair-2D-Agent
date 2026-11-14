@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="vi"><head>
+<meta charset="utf-8">
+<title>Altair · dev tests</title>
+<style>html,body{margin:0;background:#0b1017;color:#dfe7f1;font:13px/1.5 system-ui}iframe{display:block;width:420px;height:840px;border:0}</style>
+</head><body>
+<iframe id="target" src="/only.html"></iframe>
+<script>
+/* Dev harness, not part of the product UI: it loads the character-only page at
+   the same origin, pushes events through the same bridge WebView2 uses, and
+   reports results to tools/probe.py. No data is written by any check. */
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const results = [];
+const check = (name, ok, detail = '') => results.push({ name, ok: !!ok, detail: String(detail) });
+
+function finish() {
+  const body = JSON.stringify(results);
+  document.title = `done ${results.filter(r => r.ok).length}/${results.length}`;
+  fetch('http://127.0.0.1:8799/report', { method: 'POST', body });
+}
+
+async function run() {
+  const frame = document.getElementById('target');
+  await new Promise(r => frame.onload = r);
+  const w = frame.contentWindow, d = frame.contentDocument;
+  await sleep(900);
+  const c = w.altairCharacter;
+  if (!c) { check('boot', false, 'altairCharacter missing'); return finish(); }
+
+  check('rig-active', c.root.classList.contains('rig-active') && !!d.querySelector('canvas.joint-canvas'),
+    `class=${c.root.className} canvas=${!!d.querySelector('canvas.joint-canvas')}`);
+  /* Zoom must scale from the top edge; browsers resolve "50% 0" to px. */
+  const worldBox = d.querySelector('.character-world').getBoundingClientRect();
+  const origin = getComputedStyle(d.querySelector('.character-world')).transformOrigin.split(' ').map(parseFloat);
+  check('camera-origin', Math.abs(origin[0] - worldBox.width / 2) < 2 && Math.abs(origin[1]) < 1,
+    `origin=${origin.join(',')} width=${Math.round(worldBox.width)}`);
+
+  const stage = d.querySelector('.character-stage').getBoundingClientRect();
+  const at = (fx, fy) => ({ x: stage.left + stage.width * fx, y: stage.top + stage.height * fy });
+  const push = (ev) => w.altairNativePointer({ ...ev, sx: ev.x, sy: ev.y });
+
+  let p = at(0.5, 0.14);
+  push({ kind: 'down', ...p }); push({ kind: 'up', ...p });
+  await sleep(1600);
+  check('tap-dau', c.state === 'headpat' && c.bubble.textContent.trim().length > 0,
+    `state=${c.state} bubble="${c.bubble.textContent.slice(0, 24)}"`);
+
+  p = at(0.8, 0.45);
+  push({ kind: 'down', ...p });
+  for (let i = 1; i <= 6; i++) push({ kind: 'move', x: p.x + i * 9, y: p.y });
+  push({ kind: 'up', x: p.x + 54, y: p.y });
+  await sleep(1600);
+  check('vuot-toc', c.state === 'hair', `state=${c.state}`);
+
+  for (const [name, want] of [['waving', 'waving'], ['headpat', 'headpat']]) {
+    d.querySelector(`[data-demo="${name}"]`).click();
+    await sleep(1600);
+    check('nut-' + name, c.state === want, `state=${c.state}`);
+  }
+
+  const voice = d.getElementById('only-voice');
+  voice.click(); await sleep(150);
+  const off = d.getElementById('read-aloud').checked === false && voice.getAttribute('aria-pressed') === 'false';
+  voice.click(); await sleep(150);
+  const on = d.getElementById('read-aloud').checked === true && voice.getAttribute('aria-pressed') === 'true';
+  check('nut-giong', off && on, `off=${off} on=${on}`);
+
+  /* Motion: step the rig clock by hand, rAF is throttled in headless Chrome. */
+  const rig = c.rig, samples = [];
+  let now = w.performance.now();
+  for (let k = 0; k < 12; k++) {
+    for (let i = 0; i < 125; i++) { now += 16; rig.step(now, 0.016, false); }
+    const s = rig.cur;
+    samples.push({ shift: s.shift, hip: s.hip, breath: s.breath, body: s.body, head: s.head });
+  }
+  const finite = samples.every(s => [s.shift, s.hip, s.breath, s.body, s.head].every(Number.isFinite));
+  const shifts = samples.map(s => s.shift);
+  const span = Math.max(...shifts) - Math.min(...shifts);
+  const holds = samples.filter(s => Math.abs(s.shift) > 0.85).length;
+  const hipsFollow = samples.every(s => Math.sign(s.hip) === Math.sign(s.shift) || Math.abs(s.shift) < 0.2);
+  const lift = samples.map(s => s.breath * 1.8);
+  const liftSpan = Math.max(...lift) - Math.min(...lift);
+  check('trong-tam', finite && span > 1 && holds >= 2 && hipsFollow,
+    `span=${span.toFixed(2)} holds=${holds} hipsFollow=${hipsFollow}`);
+  check('vai-tho', finite && liftSpan > 1.2, `liftSpan=${liftSpan.toFixed(2)}`);
+
+  /* Blink: lids only, the face sprite index must stay untouched. */
+  c.set('idle'); rig.step(now, 0.016, false); rig.draw(now);
+  rig.blinkAt = 1e12; rig.doubleBlink = 0; rig.blinkStart = 100000;
+  rig.draw(100000 + 60);
+  const closed = Number(c.root.dataset.eyelid);
+  const faceDuring = rig.expression;
+  rig.draw(100000 + 400);
+  const open = Number(c.root.dataset.eyelid);
+  check('mi-mat', closed > 0.9 && open === 0 && faceDuring === 0,
+    `closed=${closed} open=${open} expression=${faceDuring}`);
+
+  finish();
+}
+run().catch(e => { check('exception', false, e.name + ': ' + e.message); finish(); });
+</script>
+</body></html>

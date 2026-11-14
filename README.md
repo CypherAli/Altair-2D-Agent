@@ -76,8 +76,11 @@ Một lượt hỏi: `harness.plan()` chọn skill → nếu là công cụ thì
 
 ```bash
 python -m unittest discover -s tests -v
-node tests/test_rig.cjs && node tests/test_character.cjs && node tests/test_greeting.cjs
+node tests/test_rig.cjs && node tests/test_character.cjs && node tests/test_greeting.cjs && node tests/test_microphone.cjs
+python tools/probe.py
 ```
+
+`tools/probe.py` là bộ kiểm thử chạy trong trình duyệt thật: nó tự bật server (hoặc dùng server đang chạy), mở `altair_core/web/dev-tests.html` bằng Chrome/Edge headless, chạy 10 phép kiểm rồi in PASS/FAIL, trả mã lỗi khác 0 khi có phép hỏng. Máy không có Chrome/Edge thì nó báo bỏ qua và trả 0.
 
 ## Chạy trên điện thoại
 
@@ -151,3 +154,12 @@ Chi tiết đầy đủ nằm trong `NOTICE`, `NOTICE.Altair.md`, `NOTICE.Altair
 - **Vật lý khi zoom mặt**: gốc tóc giờ bám vào hộp sọ qua `headPoint()` thay vì toạ độ tuyệt đối, nên khi đầu nghiêng tóc xoay cùng đầu, lò xo chỉ còn tạo độ trễ; trước đây ở zoom 1,8× tóc trượt khỏi đầu và hở một khe.
 - **Sửa lỗi camera**: `only.html` thiếu `transform-origin: 50% 0` cho world nên zoom phóng từ giữa khung và cắt mất đầu. Rule này đã chuyển vào `rig-base.css`.
 - **Sửa lỗi chạm đầu tiên**: `TouchController.lastReaction` khởi tạo `0`, mà `performance.now()` cũng bắt đầu gần 0, nên cú chạm trong 1,4 giây đầu phiên bị coi là "quá nhanh" và chỉ đổi dáng, không có phản ứng/giọng. Nay khởi tạo `-1e9`.
+
+## Probe thường trực và chớp mắt — 2026.11.14-rig6
+
+- `altair_core/web/dev-tests.html`: trang kiểm thử nằm trong app (cùng origin với `only.html`), nạp nhân vật vào iframe rồi đẩy sự kiện qua đúng cầu `altairNativePointer` mà WebView2 dùng — tức là đi qua mã sản phẩm thật, không phải mô phỏng lại. Mười phép kiểm: rig có canvas, `transform-origin` của world đúng `50% 0`, chạm đầu → `headpat` kèm bubble, vuốt tóc → `hair`, hai nút dock, nút Giọng bật/tắt `read-aloud`, trọng tâm dồn chân (biên độ ≥ 1 và giữ ≥ 2 mẫu), vai nhô theo hơi thở, và chớp mắt.
+- `tools/probe.py`: bật server nếu cổng còn trống, thu kết quả qua `127.0.0.1:8799`, in PASS/FAIL và thoát khác 0 khi có phép hỏng. Headless Chrome không chạy `requestAnimationFrame`, nên trang kiểm thử **tự tua** `rig.step(now, dt)` để đo chuyển động thay vì chờ vòng lặp.
+- `.github/workflows/tests.yml`: chạy 125 unit test Python, 4 bộ test JS và probe trên `windows-latest` mỗi lần push/PR.
+- **Chớp mắt**: trước đây đổi hẳn sprite khuôn mặt sang bản nhắm mắt trong ~105 ms rồi cắt về, nên ở zoom 1,8× cả lông mày và miệng giật theo. Nay chuyển mờ dần sang bản nhắm (55 ms vào / 50 ms giữ / 65 ms ra), 12–14% chớp đôi cách 300 ms; trạng thái đọc được ở `root.dataset.eyelid` để test kiểm. Đã thử hai hướng tự vẽ mí (dán dải mắt từ sprite nhắm, rồi che da + ép mắt xuống): cả hai lộ khe đỏ hoặc sọc dọc ở zoom 1,8× nên bỏ.
+
+![Mí mắt khi nhắm ở zoom 1,8×](docs/altair-blink.png)
