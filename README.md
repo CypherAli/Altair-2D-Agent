@@ -163,3 +163,26 @@ Chi tiết đầy đủ nằm trong `NOTICE`, `NOTICE.Altair.md`, `NOTICE.Altair
 - **Chớp mắt**: trước đây đổi hẳn sprite khuôn mặt sang bản nhắm mắt trong ~105 ms rồi cắt về, nên ở zoom 1,8× cả lông mày và miệng giật theo. Nay chuyển mờ dần sang bản nhắm (55 ms vào / 50 ms giữ / 65 ms ra), 12–14% chớp đôi cách 300 ms; trạng thái đọc được ở `root.dataset.eyelid` để test kiểm. Đã thử hai hướng tự vẽ mí (dán dải mắt từ sprite nhắm, rồi che da + ép mắt xuống): cả hai lộ khe đỏ hoặc sọc dọc ở zoom 1,8× nên bỏ.
 
 ![Mí mắt khi nhắm ở zoom 1,8×](docs/altair-blink.png)
+
+## Lõi: giải tất định cho toán đời thường — 2026.11.14-core2
+
+`KIEM-THU.md` ghi lại đúng chỗ yếu nhất của model 2B: bài tính nhiều bước sai, và bộ công cụ chỉ phủ một phần nhỏ. Đo lại 15 câu đời thường bằng `harness.plan()` cho thấy **11 câu rơi vào model** — tức là rơi đúng vào chỗ hay sai. Nay bảy bộ giải mới trong `everyday.py` xử lý những câu đó bằng số học chính xác (Fraction, không dấu phẩy động):
+
+| Câu hỏi | Bộ giải | Kết quả |
+|---|---|---|
+| Áo 500 nghìn giảm 20% | `discount` | −100.000, còn 400.000 đồng |
+| Hóa đơn 720 nghìn chia 3 người | `split_bill` | 240.000 đồng/người |
+| 12 km trong 15 phút | `speed` | 48 km/h |
+| 30 °C sang °F / 100 °F sang °C | `temperature` | 86 °F / 37,78 °C |
+| Sinh năm 2004 năm nay bao nhiêu tuổi | `age` | 22 (21 nếu chưa qua sinh nhật) |
+| 14/11 + 3 tuần | `date_offset` | 05/12/2026 (thứ Bảy) |
+| 2 giờ 30 phút ra phút | `compound_time` | 150 phút |
+
+Kèm theo, tiền viết theo **nghìn/ngàn/trăm/triệu** (cách nói phổ biến hơn "đồng") giờ được hiểu ở `shopping`, `discount`, `split_bill` và `constraint_choice`.
+
+Ba lỗi định tuyến đã sửa:
+- `order_reasoning` chỉ nhận "**Ai** cao nhất", nên "Hộp **nào** nặng nhất" rơi về model → nhận cả `nào`, và bỏ tiền tố "Hộp/Người/Cái" không phân biệt hoa thường (câu trước "Hộp A", câu sau "hộp B" từng tạo hai nút khác nhau).
+- `shopping` coi "tôi có 200 nghìn" là số lượng hàng → thêm nhận diện ngân sách và bỏ khoảng đó khỏi phép đếm.
+- `constraint_choice` không hiểu "100 nghìn" nên trả về model.
+
+Kết quả đo: **13/13** câu tính toán trên trả lời tất định, không nạp model; 129 unit test PASS. Phần vẫn để model: câu mở, giải thích, và tam đoạn luận "nếu…thì" (chưa có bộ giải, và đây là loại câu cần cân nhắc kỹ trước khi làm).

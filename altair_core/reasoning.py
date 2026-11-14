@@ -2,11 +2,14 @@
 import re
 from .toolkit import Result, normalize, number, show, _SCALE
 
+_SCALE_MONEY={'nghin':1000,'ngan':1000,'trieu':10**6}
+_MONEY_U=r'dong|vnd|nghin|ngan|trieu'
+
 
 def order_reasoning(question):
     text = normalize(question)
     targets = {'cao':('height',True),'thap':('height',False),'nang':('weight',True),'nhe':('weight',False)}
-    target = re.search(r'\bai\s+(cao|thap|nang|nhe)\s+nhat\b',text)
+    target = re.search(r'\b(?:ai|nao)\s+(cao|thap|nang|nhe)\s+nhat\b',text)
     if target:axis,want_max=targets[target[1]]
     elif re.search(r'(?:ai|hop nao).*ben trai|ngoai cung ben trai',text):axis,want_max='position',True
     elif re.search(r'ai den (?:cuoi cung|sau cung)',text):axis,want_max='arrival',False
@@ -25,7 +28,8 @@ def order_reasoning(question):
                     'o ben trai':('position',True),'o ben phai':('position',False),'den truoc':('arrival',True),'den sau':('arrival',False)}
     for match in relations:
         left,word,right=match.groups();relation_axis,positive=relation_types[normalize(word)]
-        left=re.sub(r'^(?:Hộp|Người|Bạn)\s+','',left);right=re.sub(r'^(?:Hộp|Người|Bạn)\s+','',right)
+        strip=r'^(?:Hộp|Người|Bạn|Cái|Con)\s+'
+        left=re.sub(strip,'',left,flags=re.I);right=re.sub(strip,'',right,flags=re.I)
         if any(token in {'ai','neu','thi','cao','hon','la','co'} for token in normalize(left+' '+right).split()):return None
         if relation_axis!=axis: return None
         higher,lower=(left,right) if positive else (right,left)
@@ -56,23 +60,23 @@ def constraint_choice(question):
     starts=list(re.finditer(r'\b([a-z])\s+(?=(?:gia|can|mat|ton)\s+\d)',text))
     if not 2<=len(starts)<=8:return None
     prefix=text[:starts[0].start()]
-    bounds=list(re.finditer(r'\b(?:ngan sach|toi da|gioi han|co)\s+(\d+(?:[.,]\d+)*)\s*(dong|vnd|phut|gio|tieng|giay)\b',prefix))
+    bounds=list(re.finditer(r'\b(?:ngan sach|toi da|gioi han|co)\s+(\d+(?:[.,]\d+)*)\s*('+_MONEY_U+r'|phut|gio|tieng|giay)\b',prefix))
     if not bounds or re.search(r'\b(?:khong|chua|chang)\b',prefix):return None
     # A shared qualifier can govern several limits: "tối đa X đồng và Y phút".
-    joint=list(re.finditer(r'\bva\s+(\d+(?:[.,]\d+)*)\s*(dong|vnd|phut|gio|tieng|giay)\b',prefix))
+    joint=list(re.finditer(r'\bva\s+(\d+(?:[.,]\d+)*)\s*('+_MONEY_U+r'|phut|gio|tieng|giay)\b',prefix))
     bound_values=[(item[1],item[2]) for item in bounds+joint]
-    amounts=list(re.finditer(r'(\d+(?:[.,]\d+)*)\s*(dong|vnd|phut|gio|tieng|giay)\b',prefix))
+    amounts=list(re.finditer(r'(\d+(?:[.,]\d+)*)\s*('+_MONEY_U+r'|phut|gio|tieng|giay)\b',prefix))
     if any(not any(start.start()<=item.start() and item.end()<=start.end() for start in bounds+joint) for item in amounts):
         return Result('Em chưa xác định đủ các giới hạn. Chủ nhân nêu rõ ngân sách và thời gian tối đa nhé.','constraint-choice',{'needs_clarification':True})
     if re.search(r'%|giam gia|hoan tien|moi chieu|moi lan|song song',text):return None
     limits={}
     for raw,unit in bound_values:
         dim='minutes' if unit in _SCALE else 'currency'
-        value=number(raw)*(_SCALE[unit] if dim=='minutes' else 1)
+        value=number(raw)*(_SCALE[unit] if dim=='minutes' else _SCALE_MONEY.get(unit,1))
         if dim in limits and limits[dim]!=value:return None
         limits[dim]=value
     attributes={}
-    value_pattern=r'(phi giao hang|phi van chuyen|phi giao|gia|can|mat|ton)\s+(\d+(?:[.,]\d+)*)(?:\s*(dong|vnd|phut|gio|tieng|giay))?\b'
+    value_pattern=r'(phi giao hang|phi van chuyen|phi giao|gia|can|mat|ton)\s+(\d+(?:[.,]\d+)*)(?:\s*('+_MONEY_U+r'|phut|gio|tieng|giay))?\b'
     for index,start in enumerate(starts):
         label=start[1].upper()
         if label in attributes:return None
@@ -87,7 +91,7 @@ def constraint_choice(question):
                 unit='dong' if verb=='gia' or verb.startswith('phi') else 'phut' if list(limits)==['minutes'] else None
             if unit is None:return None
             dim='minutes' if unit in _SCALE else 'currency'
-            value=number(raw)*(_SCALE[unit] if dim=='minutes' else 1)
+            value=number(raw)*(_SCALE[unit] if dim=='minutes' else _SCALE_MONEY.get(unit,1))
             if value>10**12:return None
             if verb.startswith('phi'):
                 if dim!='currency':return None

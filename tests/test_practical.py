@@ -19,6 +19,40 @@ class PracticalTests(unittest.TestCase):
         result=everyday.simultaneous('Giặt 35 phút và nấu cơm 20 phút bắt đầu cùng lúc. Bao lâu thì xong?')
         self.assertEqual(result.facts['result'],'35')
 
+    def test_discount_split_speed_temperature(self):
+        self.assertEqual(everyday.discount('Áo giá 500 nghìn, giảm 20%. Còn bao nhiêu?').facts['result'],'400000')
+        self.assertEqual(everyday.discount('Giá 2 triệu, tăng 10% thì sao?').facts['result'],'2200000')
+        self.assertEqual(everyday.discount('20% của 250000 đồng là bao nhiêu?').facts['result'],'50000')
+        self.assertIsNone(everyday.discount('Tôi giảm cân 5% rồi'))
+        self.assertEqual(everyday.split_bill('Hóa đơn 720 nghìn chia 3 người, mỗi người bao nhiêu?').facts['each'],'240000')
+        self.assertIsNone(everyday.split_bill('Chia số tiền đó cho 6 người.'))
+        self.assertEqual(everyday.speed('Đi 12 km trong 15 phút thì tốc độ là bao nhiêu km/h?').facts['speed_kmh'],'48')
+        self.assertEqual(everyday.temperature('30 độ C bằng bao nhiêu độ F?').facts['result'],'86')
+        self.assertEqual(everyday.temperature('100 độ F sang độ C là bao nhiêu?').text,'100°F = **37,78°C**.')
+        self.assertIsNone(everyday.temperature('Tôi đang ở 30 độ C'))
+
+    def test_age_date_and_compound_time(self):
+        self.assertEqual(everyday.age('Tôi sinh năm 2004, năm nay tôi bao nhiêu tuổi?').facts['age'],2026-2004)
+        self.assertIsNone(everyday.age('Năm nay bao nhiêu tuổi rồi?'))
+        result=everyday.date_offset('Hôm nay 14/11, 3 tuần nữa là ngày nào?')
+        self.assertEqual(result.facts['date'],'2026-12-05')
+        self.assertEqual(result.text,'3 tuần sau 14/11/2026 là **05/12/2026** (thứ Bảy).')
+        self.assertEqual(everyday.date_offset('Từ 14/11/2026, 10 ngày trước là ngày nào?').facts['date'],'2026-11-04')
+        self.assertEqual(everyday.date_offset('Từ 31/01/2027, 1 tháng nữa là ngày nào?').facts['date'],'2027-02-28')
+        self.assertIsNone(everyday.date_offset('Hôm nay trời đẹp không?'))
+        self.assertEqual(everyday.compound_time('2 giờ 30 phút đổi ra phút là bao nhiêu?').facts['result'],'150')
+
+    def test_budget_leftover_and_thousands(self):
+        result=everyday.shopping('Tôi có 200 nghìn, mua 2 hộp sữa 35 nghìn và 1 ổ bánh mì 20 nghìn. Còn lại bao nhiêu?')
+        self.assertEqual(result.facts['result'],'110000')
+        self.assertEqual(everyday.shopping('Mua 5 chai nước, mỗi chai 6000 đồng, đưa 100000 đồng. Tiền thừa bao nhiêu?').facts['result'],'70000')
+
+    def test_ordering_by_noun_and_thousand_budget(self):
+        result=reasoning.order_reasoning('Hộp A nặng hơn hộp B. Hộp B nặng hơn hộp C. Hộp nào nặng nhất?')
+        self.assertEqual(result.facts['winner'],'A')
+        result=reasoning.constraint_choice('Tôi có 100 nghìn và 2 giờ. Chọn A giá 80 nghìn mất 30 phút hay B giá 120 nghìn mất 20 phút. Nên chọn cái nào?')
+        self.assertEqual(result.facts['feasible_ids'],['A'])
+
     def test_shipping_and_two_dimensions(self):
         result=reasoning.constraint_choice('Có 100000 đồng. A giá 85000 đồng, phí giao hàng 25000 đồng. B giá 98000 đồng, miễn phí giao hàng. Chọn phương án.')
         self.assertEqual(result.facts['choice'],'B')

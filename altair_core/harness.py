@@ -6,7 +6,8 @@ from datetime import datetime, timedelta, timezone
 from . import skills
 from .toolkit import Result, arithmetic, convert_units, normalize, sudoku, time_plan
 from .reasoning import order_reasoning, constraint_choice
-from .everyday import shopping, clock_plan, simultaneous
+from .everyday import (shopping, clock_plan, simultaneous, discount, split_bill,
+                       speed, temperature, age, date_offset, compound_time)
 
 
 @dataclass
@@ -87,7 +88,9 @@ def plan(question, images=None, notes=(), web=None):
         original = re.sub(r"^(?:hãy\s+)?(?:nhớ\s+rằng\s+|ghi\s+nhớ:\s*)", "", question.strip(), flags=re.I)
         if original != question.strip():
             return Plan("memory", Result("Đã lưu ghi nhớ: " + original, "memory", {"save_note": original}))
-    for tool in (sudoku, convert_units, arithmetic, shopping, clock_plan, simultaneous, order_reasoning, constraint_choice, time_plan):
+    for tool in (sudoku, convert_units, arithmetic, discount, split_bill, speed, temperature,
+                 age, date_offset, compound_time, shopping, clock_plan, simultaneous,
+                 order_reasoning, constraint_choice, time_plan):
         result = tool(question)
         if result is not None:
             return Plan(result.skill, result)
