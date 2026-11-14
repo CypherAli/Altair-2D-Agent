@@ -38,3 +38,48 @@ class DecisionTests(unittest.TestCase):
         self.assertEqual(harness.plan(question).result.text,'B')
         multiple=reasoning.constraint_choice('Có 60 phút. A cần 30 phút, B cần 40 phút. Chọn phương án.')
         self.assertTrue(multiple.facts['needs_clarification'])
+
+
+class SyllogismTests(unittest.TestCase):
+    def test_positive_chain(self):
+        result = reasoning.syllogism('Mọi mèo là động vật. Miu là mèo. Miu có phải là động vật không?')
+        self.assertEqual(result.facts['answer'], 'yes')
+        self.assertIn('Miu', result.text)
+        deep = reasoning.syllogism('Mọi chó là động vật. Mọi động vật là sinh vật. Lu là chó. Lu có phải là sinh vật không?')
+        self.assertEqual(deep.facts['chain'], ['lu', 'cho', 'dong vat', 'sinh vat'])
+
+    def test_negative_and_contradiction(self):
+        result = reasoning.syllogism('Không con mèo nào là chim. Miu là mèo. Miu có phải là chim không?')
+        self.assertEqual(result.facts['answer'], 'no')
+        clash = reasoning.syllogism('Mọi mèo là động vật. Miu là mèo. Miu không phải là động vật. Miu có phải là động vật không?')
+        self.assertTrue(clash.facts['needs_clarification'])
+        self.assertEqual(clash.facts['answer'], 'conflict')
+
+    def test_missing_premise_asks_instead_of_guessing(self):
+        for question in ('Miu là mèo. Miu có phải là động vật không?',
+                         'Mọi mèo là động vật. Miu là mèo. Miu có phải là chim không?',
+                         'Một số mèo là đen. Miu là mèo. Miu có phải là đen không?'):
+            with self.subTest(question=question):
+                result = reasoning.syllogism(question)
+                self.assertTrue(result.facts['needs_clarification'])
+                self.assertEqual(result.facts['answer'], 'unknown')
+                self.assertIn('tiền đề', result.text)
+
+    def test_refuses_non_categorical_questions(self):
+        for question in ('Giải thích vì sao trời mưa', 'Hôm nay trời đẹp không?', 'Mọi mèo',
+                         'Nếu trời mưa thì đường ướt. Trời mưa. Đường có ướt không?'):
+            with self.subTest(question=question):
+                self.assertIsNone(reasoning.syllogism(question))
+
+    def test_what_question_and_unaccented_input(self):
+        result = reasoning.syllogism('Mọi mèo là động vật. Miu là mèo. Miu là gì?')
+        self.assertEqual(result.facts['chain'], ['meo', 'dong vat'])
+        plain = reasoning.syllogism('moi meo la dong vat. miu la meo. miu co phai la dong vat khong?')
+        self.assertEqual(plain.facts['answer'], 'yes')
+
+    def test_harness_answers_without_the_model(self):
+        plan = harness.plan('Mọi mèo là động vật. Miu là mèo. Miu có phải là động vật không?')
+        self.assertEqual(plan.skill, 'syllogism')
+        self.assertEqual(plan.result.facts['answer'], 'yes')
+        wrapped = harness.plan('Nếu tất cả mèo đều là động vật và Miu là mèo thì Miu có phải động vật không?')
+        self.assertEqual(wrapped.skill, 'syllogism')

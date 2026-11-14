@@ -119,3 +119,172 @@ def constraint_choice(question):
     winner=feasible[0];facts['choice']=winner
     answer=winner if 'chi tra loi' in text else f'Chọn {winner}: thỏa tất cả giới hạn đã nêu.'
     return Result(answer,'constraint-choice',facts)
+
+_SYLLOGISM_ARTICLES = r'^(?:cac|nhung|con|chiec|cai|mot)\s+'
+_SYLLOGISM_LEAD = r'^(?:neu|gia su|gia thiet|theo gia dinh)\s+'
+_SYLLOGISM_STOP = r'^(?:khi|thi)\b'
+
+
+def _syllogism_map(text):
+    """normalize() plus an index map, so entity names keep their spelling."""
+    out, index = [], []
+    for position, char in enumerate(text):
+        for piece in normalize(char):
+            out.append(piece)
+            index.append(position)
+    return ''.join(out), index
+
+
+def _syllogism_display(text, index, normalized, part):
+    position = normalized.find(part)
+    if position < 0 or not index:
+        return part
+    return text[index[position]:index[position + len(part) - 1] + 1].strip(' .;,:?!')
+
+
+def _syllogism_key(name):
+    return re.sub(_SYLLOGISM_ARTICLES, '', name.strip()).strip(' .;,:?!')
+
+
+def _syllogism_query(text):
+    """(kind, subject, target) for a question clause, else None."""
+    for pattern in (r'^(?:co the ket luan|co suy ra|suy ra duoc|co ket luan)\s+(.+?)\s+(?:la|thuoc)\s+(.+?)(?:\s+(?:khong|ko|k))?$',
+                    r'^vay\s+(.+?)\s+(?:la|thuoc)\s+(.+?)(?:\s+(?:khong|ko|k))?$',
+                    r'^(.+?)\s+co phai\s+(?:la|thuoc)\s+(.+?)(?:\s+(?:khong|ko|k))?$',
+                    r'^(.+?)\s+co phai\s+(.+?)(?:\s+(?:khong|ko|k))?$',
+                    r'^(.+?)\s+(?:la|thuoc)\s+(.+?)\s+(?:khong|ko|k)$'):
+        match = re.match(pattern, text)
+        if match:
+            return 'is', match[1], match[2]
+    match = re.match(r'^(.+?)\s+(?:la|thuoc)\s+(?:gi|nhom nao|loai nao)$', text)
+    return ('what', match[1], None) if match else None
+
+
+def _syllogism_premise(text):
+    """(subject, predicate, positive, universal) for a statement, or None."""
+    # "một số/nhiều" must be caught before the plain copula, or it becomes a bogus edge.
+    if re.match(r'^(?:mot so|mot vai|vai|nhieu|phan lon|da so)\b', text):
+        return 'particular'
+    for pattern, positive, universal in (
+            (r'^(?:khong|chang)\s+(?:co\s+)?(.+?)\s+(?:nao\s+)?(?:la|thuoc)\s+(.+)$', False, True),
+            (r'^(?:moi|tat ca|toan bo|het|bat ky)\s+(.+?)\s+(?:deu\s+)?(?:la|thuoc)\s+(.+)$', True, True),
+            (r'^(.+?)\s+(?:khong|chang)\s+(?:phai\s+)?(?:la|thuoc)\s+(.+)$', False, False),
+            (r'^(.+?)\s+(?:la|thuoc)\s+(.+)$', True, False)):
+        match = re.match(pattern, text)
+        if match:
+            return match[1], match[2], positive, universal
+    return None
+
+
+def syllogism(question):
+    """Deterministic "mọi…/không…" reasoning; an unproven claim is questioned, never guessed."""
+    # Trailing "?" must go before parsing, or "…không?" no longer matches the question pattern.
+    fragments = [part.strip(' \t\n?!.,;:') for part in
+                 re.split(r'[.;\n,]|\s+va\s+|\s+và\s+|\s+thì\s+|\s+thi\s+', question)
+                 if part.strip(' .;,\t\n?!:')]
+    if not 2 <= len(fragments) <= 9:
+        return None
+    relations, negatives, labels = {}, [], {}
+    query, particular = None, False
+    for fragment in fragments:
+        text, index = _syllogism_map(fragment)
+        # "Nếu … thì …" states the same premises as assumptions; index follows the trim.
+        lead = re.match(_SYLLOGISM_LEAD, text)
+        if lead:
+            text, index = text[lead.end():], index[lead.end():]
+        if re.match(_SYLLOGISM_STOP, text):
+            return None
+        ask = _syllogism_query(text)
+        if ask:
+            if query is not None:
+                return None
+            kind, subject, target = ask
+            subject_key = _syllogism_key(subject)
+            if not subject_key:
+                return None
+            labels[subject_key] = _syllogism_display(fragment, index, text, subject)
+            target_key = None
+            if target is not None:
+                target_key = _syllogism_key(target)
+                if not target_key or target_key == subject_key:
+                    return None
+                labels[target_key] = _syllogism_display(fragment, index, text, target)
+            query = (kind, subject_key, target_key)
+            continue
+        premise = _syllogism_premise(text)
+        if premise == 'particular':
+            particular = True
+            continue
+        if not premise:
+            return None
+        subject, target, positive, _ = premise
+        subject_key, target_key = _syllogism_key(subject), _syllogism_key(target)
+        if not subject_key or not target_key or subject_key == target_key:
+            return None
+        labels.setdefault(subject_key, _syllogism_display(fragment, index, text, subject))
+        labels.setdefault(target_key, _syllogism_display(fragment, index, text, target))
+        if positive:
+            relations.setdefault(subject_key, set()).add(target_key)
+        else:
+            negatives.append((subject_key, target_key))
+    if query is None or not labels:
+        return None
+
+    def path(start, goal, seen=None):
+        seen = seen or {start}
+        if start == goal:
+            return [start]
+        for step in sorted(relations.get(start, ())):
+            if step in seen:
+                continue
+            found = path(step, goal, seen | {step})
+            if found:
+                return [start] + found
+        return None
+
+    def reachable(start):
+        """Names implied by start, nearest first."""
+        order, seen, queue = [], {start}, [start]
+        while queue:
+            for step in sorted(relations.get(queue.pop(0), ())):
+                if step not in seen:
+                    seen.add(step)
+                    order.append(step)
+                    queue.append(step)
+        return order
+
+    def implies(start, goal):
+        return start == goal or goal in reachable(start)
+
+    def conflict_between(subject_key, target_key):
+        for left, right in negatives:
+            if {left, right} == {subject_key, target_key}:
+                return left, right
+            if implies(subject_key, left) and implies(target_key, right):
+                return left, right
+        return None
+
+    kind, subject_key, target_key = query
+    label = lambda key: labels.get(key, key)
+    if kind == 'what':
+        above = [label(node) for node in reachable(subject_key)]
+        if not above:
+            return Result(f"Em chưa có tiền đề nào cho biết {label(subject_key)} thuộc nhóm nào.", 'syllogism',
+                          {'needs_clarification': True, 'answer': 'unknown'})
+        return Result(f"{label(subject_key)} là {', '.join(above)} (theo tiền đề đã nêu).", 'syllogism',
+                      {'answer': 'yes', 'chain': reachable(subject_key)})
+    chain, conflict = path(subject_key, target_key), conflict_between(subject_key, target_key)
+    walk = ' → '.join(label(node) for node in chain) if chain else ''
+    if chain and conflict:
+        return Result(f"Tiền đề mâu thuẫn: {walk}, nhưng cũng có phủ định giữa {label(conflict[0])} và {label(conflict[1])}.",
+                      'syllogism', {'needs_clarification': True, 'answer': 'conflict'})
+    if chain:
+        return Result(f"Có. {walk}.", 'syllogism', {'answer': 'yes', 'chain': chain})
+    if conflict:
+        detail = (f"{label(subject_key)} là {label(conflict[0])}, và " if conflict[0] != subject_key else '')
+        return Result(f"Không. {detail}{label(conflict[0])} không là {label(conflict[1])} theo tiền đề đã nêu.",
+                      'syllogism', {'answer': 'no', 'chain': [conflict[0], conflict[1]]})
+    hint = ' (câu có "một số/nhiều" nên không đủ để kết luận chung)' if particular else ''
+    return Result(f"Em chưa đủ tiền đề để kết luận {label(subject_key)} có là {label(target_key)} hay không{hint}. "
+                  f"Chủ nhân bổ sung quan hệ giữa hai khái niệm này nhé.", 'syllogism',
+                  {'needs_clarification': True, 'answer': 'unknown'})

@@ -186,3 +186,14 @@ Ba lỗi định tuyến đã sửa:
 - `constraint_choice` không hiểu "100 nghìn" nên trả về model.
 
 Kết quả đo: **13/13** câu tính toán trên trả lời tất định, không nạp model; 129 unit test PASS. Phần vẫn để model: câu mở, giải thích, và tam đoạn luận "nếu…thì" (chưa có bộ giải, và đây là loại câu cần cân nhắc kỹ trước khi làm).
+
+### Tam đoạn luận "mọi… / không…" (`reasoning.syllogism`)
+
+Dạng câu "Mọi mèo là động vật. Miu là mèo. Miu có phải là động vật không?" trước đây vẫn đẩy cho model 2B, đúng loại câu model hay kết luận bừa. Nay có bộ giải tất định, chạy trước model và không nạp model:
+
+- Dựng đồ thị "là" từ tiền đề, lấy bao đóng bắc cầu rồi trả lời kèm chuỗi suy luận: `Có. Miu → mèo → động vật.`
+- Hiểu `mọi/mỗi/tất cả/toàn bộ`, `không … nào`, `X không phải là Y`, và câu viết không dấu. Cắt câu theo `.` `,` `;` và `và`, và bỏ tiền tố `Nếu … thì …` vì đó vẫn là tiền đề giả định.
+- **Thiếu tiền đề thì hỏi lại, không đoán**: không có đường suy ra và không có phủ định ⇒ `Em chưa đủ tiền đề để kết luận …`; tiền đề mâu thuẫn (vừa suy ra vừa bị phủ định) ⇒ nói rõ là mâu thuẫn; câu có "một số/nhiều" ⇒ nêu rõ là không đủ để kết luận.
+- **Từ chối đúng lúc**: câu không phải dạng phạm trù (vị từ là động từ như "mọi loài chim đều biết bay", câu thời tiết, câu chỉ có một mệnh đề) trả `None` để model xử lý, thay vì suy diễn sai.
+
+135 unit test PASS, gồm cả các ca phải từ chối (`Mọi mèo`, `Nếu trời mưa thì đường ướt…`) và ca hỏi lại (`Miu là mèo.` thiếu tiền đề).
